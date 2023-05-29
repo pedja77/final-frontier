@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 
 // Vraca string reprezentaciju objekta koji sadrzi username, expiration i niz authorities u kome
-// se nalaze role koje korisnik ima
+// se nalaze role koje korisnik ima, izmedju ostalog
 export const  decodeJwtPayload = (token) => {
     const base64Payload = getTokenPayload(token);
     console.log('decodeJwtPayload ' + Buffer.from(base64Payload, 'base64').toString('utf8'))
