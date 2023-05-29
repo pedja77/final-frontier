@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { decodeJwtPayload } from "../utils/token";
+import { produce } from "immer";
 
 export const useLogin = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -14,11 +15,11 @@ export const useLogin = () => {
                     );
             const user = await u.json();
             console.log('useLogin>login>user ' + JSON.stringify(user))
-            const newUser = {
-                ...user,
-                token: user.token.split(" ")[1],
-                role: JSON.parse(decodeJwtPayload(user.token)).authorities[0]
-            };
+            
+            const newUser = produce(user, draft => {
+                draft.token = user.token.split(" ")[1];
+                draft["role"] = JSON.parse(decodeJwtPayload(user.token)).authorities[0];
+            })
             console.log('newUser ' + JSON.stringify(newUser));
             setUser(newUser);
             localStorage.setItem('user', JSON.stringify(newUser));
