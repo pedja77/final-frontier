@@ -106,6 +106,9 @@ function App() {
       primary: {
         main: "#bf360c",
       },
+      secondary: {
+        main: "#ffffff"
+      },
       divider: "#00300d",
       text: {
         primary: "#00000",
@@ -153,12 +156,8 @@ function App() {
                 eDnevnik
               </Typography>
               <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-                <LoginControl
-                  safePath={"/"}
-                  defaultPath={"/"}
-                  color={"secondary"}
-                />
-                <FormGroup>
+              <LoginControl safePath={"/"} defaultPath={"/"} isInToolbar={true}/>
+                <FormGroup sx={{marginLeft: 3}}>
                   <FormControlLabel
                     control={
                       <Switch
@@ -186,7 +185,8 @@ function App() {
             open={openDrawer}
           >
             <Toolbar />
-            <DrawerHeader>
+            <DrawerHeader sx={{display: 'flex', justifyContent: 'space-between'}}>
+            <LoginControl safePath={"/"} defaultPath={"/"} isInToolbar={false}/>
               <IconButton onClick={handlerDrawer}>
                 {theme.direction === "ltr" ? (
                   <ChevronLeftIcon />
@@ -194,8 +194,6 @@ function App() {
                   <ChevronRightIcon />
                 )}
               </IconButton>
-              <Divider />
-              <LoginControl safePath={"/"} defaultPath={"/"} />
             </DrawerHeader>
             <Divider />
             <List>
