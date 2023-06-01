@@ -14,7 +14,7 @@ export const useLogin = () => {
         }
       );
       console.log("Login response status " + response.status);
-      if (response.status === 200) {
+      if (response.ok) {
         const u = await response.json();
         console.log("useLogin>login>user " + JSON.stringify(u));
 
