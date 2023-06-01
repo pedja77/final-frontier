@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
@@ -101,7 +101,8 @@ function App() {
 
   const [user, login, logout] = useLogin();
 
-  const lightTheme = createTheme({
+  // Proveriti jos da li je isDarkMode u listi zavisnosti?????
+  const lightTheme = useMemo(() => createTheme({
     palette: {
       mode: "light",
       primary: {
@@ -116,13 +117,13 @@ function App() {
         secondary: "#424242"
       }
     },
-  });
+  }), [isDarkMode]);
 
-  const darkTheme = createTheme({
+  const darkTheme = useMemo(() => createTheme({
     palette: {
       mode: "dark",
     },
-  });
+  }), [isDarkMode]);
 
   const handlerDrawer = () => {
     setOpenDrawer(!openDrawer);
@@ -166,7 +167,7 @@ function App() {
                         onChange={handleThemeChange}
                       />
                     }
-                    label="Dark mode"
+                    label={isDarkMode ? "Light mode" : "Dark mode"}
                   />
                 </FormGroup>
               </Box>
@@ -186,8 +187,7 @@ function App() {
             open={openDrawer}
           >
             <Toolbar />
-            <DrawerHeader sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <LoginControl safePath={"/"} defaultPath={"/"} isInToolbar={false}/>
+            <DrawerHeader sx={{display: 'flex', justifyContent: 'flex-end'}}>
               <IconButton onClick={handlerDrawer}>
                 {theme.direction === "ltr" ? (
                   <ChevronLeftIcon />
@@ -223,7 +223,7 @@ function App() {
           <Main open={openDrawer}>
             <DrawerHeader />
             <Outlet />
-            <Welcome user={{user}}></Welcome>
+            {user === null && <Welcome />}
           </Main>
         </Box>
       </UserContext.Provider>

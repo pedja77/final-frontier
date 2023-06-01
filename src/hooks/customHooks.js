@@ -18,10 +18,11 @@ export const useLogin = () => {
         const u = await response.json();
         console.log("useLogin>login>user " + JSON.stringify(u));
 
-        const newUser = produce((u, draft) => {
+        const newUser = produce(u, (draft) => {
+          console.log('produce ' + JSON.stringify(draft))
           draft.token = u.token.split(" ")[1];
           draft["role"] = JSON.parse(
-            decodeJwtPayload(draft.token)
+            decodeJwtPayload(u.token)
           ).authorities[0];
         });
         console.log("newUser " + JSON.stringify(newUser));
