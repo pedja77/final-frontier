@@ -52,7 +52,15 @@ const router = createBrowserRouter([
             }
           );
           const subject = await response.json();
-          return subject;
+          const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
+            method: "GET",
+            headers: {
+              Authorization: getToken(),
+            },
+          });
+          const grades = await response2.json();
+
+          return [subject, grades];
         },
       },
     ],
