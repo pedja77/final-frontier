@@ -52,6 +52,7 @@ const router = createBrowserRouter([
             }
           );
           const subject = await response.json();
+
           const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
             method: "GET",
             headers: {
@@ -60,7 +61,23 @@ const router = createBrowserRouter([
           });
           const grades = await response2.json();
 
-          return [subject, grades];
+          const response3 = await fetch(`http://localhost:8080/api/v1/teachers`, {
+            method: 'GET',
+            headers: {
+              Authorization: getToken()
+            },
+          });
+          const teachers = await response3.json();
+          
+          const response4 = await fetch(`http://localhost:8080/api/v1/students?grade=${subject.grade}`, {
+            method: 'GET',
+            headers: {
+              Authorization: getToken()
+            }
+          });
+          const students = await response4.json();
+          console.log('students by grade ' + JSON.stringify(students, null, 4));
+          return [subject, grades, teachers, students];
         },
       },
     ],

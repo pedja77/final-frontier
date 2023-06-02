@@ -24,7 +24,7 @@ import { gradeToString } from "../../utils/textTools";
 import { Add, AddBox, AddBoxSharp, Delete, Edit } from "@mui/icons-material";
 
 const Subject = () => {
-  const [sub, grades] = useLoaderData();
+  const [sub, grades, teachers, studentsByGrade] = useLoaderData();
   const [subject, setSubject] = useState(sub);
   console.log("subject " + JSON.stringify(subject, null, 4));
 
@@ -131,7 +131,8 @@ const Subject = () => {
                 label ="Dodeli predmet nastavniku"
                 sx={{ width: "90%" }}
               >
-                <MenuItem>Pera Peric</MenuItem>
+                {teachers.map(t => <MenuItem key={t.id}>{`${t.firstName} ${t.lastName}`}</MenuItem>)}
+                
               </TextField>
               <Tooltip title="Dodaj novog nastavnika">
                 <IconButton size="large">
@@ -188,7 +189,7 @@ const Subject = () => {
                 label ="Dodeli predmet učeniku"
                 sx={{ width: "90%" }}
               >
-                <MenuItem>Pera Peric</MenuItem>
+                {studentsByGrade.map(s => <MenuItem key={s.id}>{`${s.firstName} ${s.lastName}`}</MenuItem>)}
               </TextField>
               <Tooltip title="Dodaj novog učenika">
                 <IconButton size="large">
