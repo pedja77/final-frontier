@@ -6,22 +6,12 @@ import {
   CardHeader,
   Typography,
 } from "@mui/material";
+import { gradeToString, sufix } from "../../utils/textTools";
+import { Link } from "react-router-dom";
 
-const gradeString = new Map([
-  [1, "prvi"],
-  [2, "drugi"],
-  [3, "treći"],
-  [4, "četvrti"],
-  [5, "peti"],
-  [6, "šesti"],
-  [7, "sedmi"],
-  [8, "osmi"],
-]);
 
-const sufix = (n) => {
-    let lastDigit = n.toString().slice(-1);
-    return lastDigit === '1' ? '/ca' : 'a/ce'; 
-}
+
+
 
 const SubjectCard = ({ subject }) => {
   return (
@@ -36,7 +26,7 @@ const SubjectCard = ({ subject }) => {
     >
       <CardHeader
         title={subject.subjectName}
-        subheader={`Za ${gradeString.get(subject.grade)} razred.`}
+        subheader={`Za ${gradeToString.get(subject.grade)} razred.`}
         sx={{backgroundColor: ''}}
       />
       <CardContent>
@@ -49,7 +39,7 @@ const SubjectCard = ({ subject }) => {
         </Typography>
       </CardContent>
       <CardActions sx={{display: 'flex', flexDirection: 'row-reverse'}}>
-        <Button>Prikaži</Button>
+        <Button component={Link} to={`/subjects/${subject.id}`}>Prikaži</Button>
       </CardActions>
     </Card>
   );

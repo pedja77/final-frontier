@@ -5,14 +5,17 @@ import {
   TextField,
   Select,
   MenuItem,
+  Divider,
 } from "@mui/material";
 import { useFetcher, useLoaderData } from "react-router-dom";
 import SubjectCard from "./SubjectCard";
 import { useEffect, useState } from "react";
 import {getToken} from '../../utils/token.js';
+import { gradeToString } from "../../utils/textTools";
 
 const Subjects = () => {
-  const [subjects, setSubjects] = useState(useLoaderData());
+  const [subs, grades] = useLoaderData();
+  const [subjects, setSubjects] = useState(subs);
   const [nameQuery, setNameQuery] = useState("");
   const [gradeQuery, setGradeQuery] = useState(0);
 
@@ -48,7 +51,7 @@ const Subjects = () => {
       <Stack direction="column">
         <Stack direction="row" sx={{ padding: "24px" }}>
           <TextField
-            placeholder="Pretraga..."
+            placeholder="Pretraga po nazivu predmeta..."
             value={nameQuery}
             onChange={(e) => setNameQuery(e.target.value)}
             sx={{ flexGrow: 8 }}
@@ -57,13 +60,15 @@ const Subjects = () => {
             value={gradeQuery}
             onChange={(e) => setGradeQuery(e.target.value)}
             sx={{ flexGrow: 2 }}
+            placeholder="Razred"
           >
             <MenuItem value={0} key={0}>
-              Svi
+              Svi razredi
             </MenuItem>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-              <MenuItem keys={s} value={s}>
-                {s}
+            <Divider />
+            {grades.map((g) => (
+              <MenuItem key={g.id} value={g.grade}>
+                {gradeToString.get(g.grade)}
               </MenuItem>
             ))}
           </Select>
