@@ -42,6 +42,7 @@ const router = createBrowserRouter([
         element: <Subject />,
         path: "subjects/:id",
         loader: async ({ params }) => {
+          console.log('params ' + JSON.stringify(params))
           const response = await fetch(
             `http://localhost:8080/api/v1/subjects/${params.id}`,
             {

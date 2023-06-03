@@ -63,6 +63,7 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
           </DialogContentText>
           <TextField
             autoFocus
+            focused
             id="username"
             label="Korisničko ime"
             type="text"

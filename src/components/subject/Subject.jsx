@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Container,
@@ -7,6 +8,7 @@ import {
   FormLabel,
   IconButton,
   MenuItem,
+  Paper,
   Select,
   Table,
   TableBody,
@@ -19,14 +21,16 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { gradeToString } from "../../utils/textTools";
 import { Add, AddBox, AddBoxSharp, Delete, Edit } from "@mui/icons-material";
+import { produce } from "immer";
 
 const Subject = () => {
   const [sub, grades, teachers, studentsByGrade] = useLoaderData();
   const [subject, setSubject] = useState(sub);
-  console.log("subject " + JSON.stringify(subject, null, 4));
+  const [newTeacher, setNewTeacher] = useState(null);
+  const [newStudent, setMewStudent] = useState(null);
 
   return (
     <Container
@@ -55,8 +59,15 @@ const Subject = () => {
           <FormLabel>id: {subject.id}</FormLabel>
           <TextField
             label="Naziv"
-            defaultValue={subject.subjectName}
+            value={subject.subjectName}
             sx={{ marginBottom: 2 }}
+            onChange={(e) =>
+              setSubject(
+                produce((draft) => {
+                  draft.subjectName = e.target.value;
+                })
+              )
+            }
           />
           <TextField
             label="Nedeljni fond časova"
@@ -64,6 +75,13 @@ const Subject = () => {
             value={subject.weeklyFund}
             inputProps={{ min: 0 }}
             sx={{ marginBottom: 2 }}
+            onChange={(e) =>
+              setSubject(
+                produce((draft) => {
+                  draft.weeklyFund = e.target.value;
+                })
+              )
+            }
           />
           <TextField
             value={subject.grade}
@@ -83,7 +101,7 @@ const Subject = () => {
           </TextField>
           <Box sx={{ marginY: 2 }}>
             <FormLabel>Nastavnici:</FormLabel>
-            <TableContainer component={"paper"}>
+            <TableContainer>
               <Table
                 sx={{ minWidth: "80%" }}
                 size="small"
@@ -104,7 +122,18 @@ const Subject = () => {
                       <TableCell>{t.lastName}</TableCell>
                       <TableCell align="right">
                         <Tooltip title="Obriši">
-                          <IconButton>
+                          <IconButton
+                            onClick={(e) =>
+                              setSubject(
+                                produce(subject, (draft) => {
+                                  const index = draft.teachers.findIndex(
+                                    (v) => v.id === t.id
+                                  );
+                                  if (index !== -1) draft.teachers.splice(index, 1);
+                                })
+                              )
+                            }
+                          >
                             <Delete />
                           </IconButton>
                         </Tooltip>
@@ -126,24 +155,37 @@ const Subject = () => {
                 justifyContent: "space-between",
               }}
             >
-              <TextField
-                select
-                label ="Dodeli predmet nastavniku"
+              <Autocomplete
                 sx={{ width: "90%" }}
-              >
-                {teachers.map(t => <MenuItem key={t.id}>{`${t.firstName} ${t.lastName}`}</MenuItem>)}
-                
-              </TextField>
+                options={teachers} //.filter(t => subject.teachers.every(st => st.id !== t.id))}
+                getOptionLabel={(a) => `${a.firstName} ${a.lastName}`}
+                renderInput={(params) => (
+                  <TextField {...params} label="Dodeli predmet nastavniku" />
+                )}
+                value={newTeacher}
+                onChange={(e, v) => {
+                  setNewTeacher(v); // teachers ne mutiramo, ok da je referenca?????!!!???
+                }}
+              />
               <Tooltip title="Dodaj novog nastavnika">
-                <IconButton size="large">
-                  <AddBoxSharp fontSize="large"/>
+                <IconButton
+                  size="large"
+                  onClick={() =>
+                    setSubject(
+                      produce((draft) => {
+                        draft.teachers.push(newTeacher);
+                      })
+                    )
+                  }
+                >
+                  <AddBoxSharp fontSize="large" />
                 </IconButton>
               </Tooltip>
             </Box>
           </Box>
           <Box sx={{ marginY: 2 }}>
             <FormLabel>Učenici:</FormLabel>
-            <TableContainer component={"paper"}>
+            <TableContainer>
               <Table sx={{ minWidth: 650 }} size="small" aria-label="Učenici">
                 <TableHead>
                   <TableRow>
@@ -186,14 +228,18 @@ const Subject = () => {
             >
               <TextField
                 select
-                label ="Dodeli predmet učeniku"
+                label="Dodeli predmet učeniku"
                 sx={{ width: "90%" }}
               >
-                {studentsByGrade.map(s => <MenuItem key={s.id}>{`${s.firstName} ${s.lastName}`}</MenuItem>)}
+                {studentsByGrade.map((s) => (
+                  <MenuItem
+                    key={s.id}
+                  >{`${s.firstName} ${s.lastName}`}</MenuItem>
+                ))}
               </TextField>
               <Tooltip title="Dodaj novog učenika">
                 <IconButton size="large">
-                  <AddBoxSharp fontSize="large"/>
+                  <AddBoxSharp fontSize="large" />
                 </IconButton>
               </Tooltip>
             </Box>
