@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
 import { gradeToString } from "../../utils/textTools";
 import { Add, AddBox, AddBoxSharp, Delete, Edit } from "@mui/icons-material";
 import { produce } from "immer";
@@ -30,7 +30,8 @@ const Subject = () => {
   const [sub, grades, teachers, studentsByGrade] = useLoaderData();
   const [subject, setSubject] = useState(sub);
   const [newTeacher, setNewTeacher] = useState(null);
-  const [newStudent, setMewStudent] = useState(null);
+  const [newStudent, setNewStudent] = useState(null);
+  const fetcher = useFetcher();
 
   return (
     <Container
@@ -125,11 +126,12 @@ const Subject = () => {
                           <IconButton
                             onClick={(e) =>
                               setSubject(
-                                produce(subject, (draft) => {
+                                produce((draft) => {
                                   const index = draft.teachers.findIndex(
                                     (v) => v.id === t.id
                                   );
-                                  if (index !== -1) draft.teachers.splice(index, 1);
+                                  if (index !== -1)
+                                    draft.teachers.splice(index, 1);
                                 })
                               )
                             }
@@ -157,7 +159,9 @@ const Subject = () => {
             >
               <Autocomplete
                 sx={{ width: "90%" }}
-                options={teachers} //.filter(t => subject.teachers.every(st => st.id !== t.id))}
+                options={teachers.filter((t) =>
+                  subject.teachers.every((st) => st.id !== t.id)
+                )}
                 getOptionLabel={(a) => `${a.firstName} ${a.lastName}`}
                 renderInput={(params) => (
                   <TextField {...params} label="Dodeli predmet nastavniku" />
@@ -170,13 +174,16 @@ const Subject = () => {
               <Tooltip title="Dodaj novog nastavnika">
                 <IconButton
                   size="large"
-                  onClick={() =>
-                    setSubject(
-                      produce((draft) => {
-                        draft.teachers.push(newTeacher);
-                      })
-                    )
-                  }
+                  onClick={() => {
+                    if (newTeacher !== null) {
+                      setSubject(
+                        produce((draft) => {
+                          draft.teachers.push(newTeacher);
+                        })
+                      );
+                      setNewTeacher(null);
+                    }
+                  }}
                 >
                   <AddBoxSharp fontSize="large" />
                 </IconButton>
@@ -204,7 +211,19 @@ const Subject = () => {
                       <TableCell>{t.dateOfBirth}</TableCell>
                       <TableCell align="right">
                         <Tooltip title="Obriši">
-                          <IconButton>
+                          <IconButton
+                            onClick={(e) =>
+                              setSubject(
+                                produce((draft) => {
+                                  const index = draft.students.findIndex(
+                                    (v) => v.id === t.id
+                                  );
+                                  if (index !== -1)
+                                    draft.students.splice(index, 1);
+                                })
+                              )
+                            }
+                          >
                             <Delete />
                           </IconButton>
                         </Tooltip>
@@ -226,26 +245,55 @@ const Subject = () => {
                 justifyContent: "space-between",
               }}
             >
-              <TextField
-                select
-                label="Dodeli predmet učeniku"
+              <Autocomplete
                 sx={{ width: "90%" }}
-              >
-                {studentsByGrade.map((s) => (
-                  <MenuItem
-                    key={s.id}
-                  >{`${s.firstName} ${s.lastName}`}</MenuItem>
-                ))}
-              </TextField>
+                options={studentsByGrade.filter((t) =>
+                  subject.students.every((st) => st.id !== t.id)
+                )}
+                getOptionLabel={(a) => `${a.firstName} ${a.lastName}`}
+                renderInput={(params) => (
+                  <TextField {...params} label="Dodeli predmet učeniku" />
+                )}
+                value={newStudent}
+                onChange={(e, v) => {
+                  setNewStudent(v);
+                }}
+              />
               <Tooltip title="Dodaj novog učenika">
-                <IconButton size="large">
+                <IconButton
+                  size="large"
+                  onClick={() => {
+                    if (newStudent !== null) {
+                      setSubject(
+                        produce((draft) => {
+                          draft.students.push(newStudent);
+                        })
+                      );
+                      setNewStudent(null);
+                    }
+                  }}
+                >
                   <AddBoxSharp fontSize="large" />
                 </IconButton>
               </Tooltip>
             </Box>
           </Box>
           <FormGroup sx={{ display: "flex", flexDirection: "row-reverse" }}>
-            <Button variant="outlined">Sačuvaj</Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                console.log(JSON.stringify(subject, null, 4));
+                let s = structuredClone(subject);
+                s.students = JSON.stringify(subject.students);
+                s.teachers = JSON.stringify(subject.teachers);
+                fetcher.submit(s, {
+                  method: "put",
+                  action: `/subjects/${subject.id}`,
+                });
+              }}
+            >
+              Sačuvaj
+            </Button>
             <Button variant="contained" sx={{ marginRight: 1 }}>
               Otkaži
             </Button>

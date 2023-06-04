@@ -80,6 +80,22 @@ const router = createBrowserRouter([
           console.log('students by grade ' + JSON.stringify(students, null, 4));
           return [subject, grades, teachers, students];
         },
+        action: async ({params, request}) => {
+          const data = Object.fromEntries(await request.formData());
+          data.teachers = JSON.parse(data.teachers);
+          data.students = JSON.parse(data.students);
+          console.log('request ' + JSON.stringify(data))
+          console.log('params ' + JSON.stringify(params))
+          const res = await fetch(`http://localhost:8080/api/v1/subjects/${params.id}`, {
+            method: 'PUT',
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: getToken()
+            },
+            body: JSON.stringify(data)
+          })
+          return res;
+        }
       },
     ],
   },
