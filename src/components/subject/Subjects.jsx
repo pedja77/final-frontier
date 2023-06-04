@@ -12,6 +12,7 @@ import SubjectCard from "./SubjectCard";
 import { useEffect, useState } from "react";
 import {getToken} from '../../utils/token.js';
 import { gradeToString } from "../../utils/textTools";
+import { useFetchData } from "../../hooks/customHooks";
 
 const Subjects = () => {
   const [subs, grades] = useLoaderData();
@@ -19,7 +20,7 @@ const Subjects = () => {
   const [nameQuery, setNameQuery] = useState("");
   const [gradeQuery, setGradeQuery] = useState(0);
 
-  //   const fetcher = useFetcher();
+  // const fetcher = useFetcher();
 
   useEffect(() => {
     let ignore = false;
@@ -55,6 +56,7 @@ const Subjects = () => {
             value={nameQuery}
             onChange={(e) => setNameQuery(e.target.value)}
             sx={{ flexGrow: 8 }}
+            name="subjectSearchTextField"
           />
           <Select
             value={gradeQuery}

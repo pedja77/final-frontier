@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { decodeJwtPayload } from "../utils/token";
 import { produce } from "immer";
 
@@ -19,11 +19,9 @@ export const useLogin = () => {
         console.log("useLogin>login>user " + JSON.stringify(u));
 
         const newUser = produce(u, (draft) => {
-          console.log('produce ' + JSON.stringify(draft))
+          console.log("produce " + JSON.stringify(draft));
           draft.token = u.token.split(" ")[1];
-          draft["role"] = JSON.parse(
-            decodeJwtPayload(u.token)
-          ).authorities[0];
+          draft["role"] = JSON.parse(decodeJwtPayload(u.token)).authorities[0];
         });
         console.log("newUser " + JSON.stringify(newUser));
         setUser(newUser);
@@ -40,4 +38,21 @@ export const useLogin = () => {
       localStorage.removeItem("user");
     },
   ];
+};
+
+export const useFetchData = (url, config) => {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    let ignore = false;
+    const fetchData = async () => {
+      const res = await fetch(url, config);
+      if (!ignore) {
+        const jsonData = await res.json();
+        setData(jsonData);
+      }
+    };
+    fetchData();
+    return () => ignore = true;
+  }, [url]);
+  return data;
 };

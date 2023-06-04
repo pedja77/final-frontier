@@ -37,6 +37,30 @@ const router = createBrowserRouter([
 
           return [subjects, grades];
         },
+        children: [
+          {
+            path: "/subjects/search",
+            loader:  ({request}) => {
+              console.log('params ' + (new URL(request.url)).searchParams)
+              const search = (new URL(request.url)).searchParams;
+              // if((new URL(request.url)).searchParams.get("query") !== null){
+              //   console.log("GET operacija koja radi pretragu.");
+              //   return null; 
+              // }else{
+              //   return fetch(`http://localhost:8080/api/v1/genre/${params.id}`);  
+              // }
+              const res =  fetch(`http://localhost:8080/api/v1/subjects/search?${search}`, {
+                method: 'GET',
+                headers: {
+                  Authorization: getToken()
+                }
+              });
+              // const data = await res.json();
+              // console.log('data ' + JSON.stringify(data));
+              return res;
+            },
+          },
+        ]
       },
       {
         element: <Subject />,
@@ -84,8 +108,8 @@ const router = createBrowserRouter([
           const data = Object.fromEntries(await request.formData());
           data.teachers = JSON.parse(data.teachers);
           data.students = JSON.parse(data.students);
-          console.log('request ' + JSON.stringify(data))
-          console.log('params ' + JSON.stringify(params))
+          // console.log('request ' + JSON.stringify(data))
+          // console.log('params ' + JSON.stringify(params))
           const res = await fetch(`http://localhost:8080/api/v1/subjects/${params.id}`, {
             method: 'PUT',
             headers: {

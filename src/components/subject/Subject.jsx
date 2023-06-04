@@ -173,16 +173,15 @@ const Subject = () => {
               />
               <Tooltip title="Dodaj novog nastavnika">
                 <IconButton
+                  disabled={newTeacher === null}
                   size="large"
                   onClick={() => {
-                    if (newTeacher !== null) {
-                      setSubject(
-                        produce((draft) => {
-                          draft.teachers.push(newTeacher);
-                        })
-                      );
-                      setNewTeacher(null);
-                    }
+                    setSubject(
+                      produce((draft) => {
+                        draft.teachers.push(newTeacher);
+                      })
+                    );
+                    setNewTeacher(null);
                   }}
                 >
                   <AddBoxSharp fontSize="large" />
@@ -261,16 +260,15 @@ const Subject = () => {
               />
               <Tooltip title="Dodaj novog učenika">
                 <IconButton
+                  disabled={newStudent === null}
                   size="large"
                   onClick={() => {
-                    if (newStudent !== null) {
-                      setSubject(
-                        produce((draft) => {
-                          draft.students.push(newStudent);
-                        })
-                      );
-                      setNewStudent(null);
-                    }
+                    setSubject(
+                      produce((draft) => {
+                        draft.students.push(newStudent);
+                      })
+                    );
+                    setNewStudent(null);
                   }}
                 >
                   <AddBoxSharp fontSize="large" />
@@ -294,7 +292,11 @@ const Subject = () => {
             >
               Sačuvaj
             </Button>
-            <Button variant="contained" sx={{ marginRight: 1 }}>
+            <Button 
+                variant="contained" 
+                sx={{ marginRight: 1 }}
+                onClick={() => setSubject(sub)}    
+            >
               Otkaži
             </Button>
           </FormGroup>
