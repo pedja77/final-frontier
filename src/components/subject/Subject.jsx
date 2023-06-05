@@ -24,6 +24,7 @@ import { gradeToString } from "../../utils/textTools";
 import { Add, AddBox, AddBoxSharp, Delete, Edit } from "@mui/icons-material";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
+import TableTemplate from "../lib/TableTemplate";
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -110,6 +111,23 @@ const Subject = () => {
 *       - kad se promeni razred, azurirati ucenike u autocompletu
 *
 */
+const teachersTableConfig = {
+    tableLabel: "Nastavnici",
+    tableHeaders: ["Id", "Ime", "Prezime"],
+    tableData: state.subject.teachers,
+    tdConfig: ["id", "firstName", "lastName"],
+    removeFn: handleRemoveItem,
+    collectionName: "teachers"
+}
+
+const studentsTableConfig = {
+    tableLabel: "Učenici",
+    tableHeaders: ["Id", "Ime", "Prezime", "Datum rođenja"],
+    tableData: state.subject.students,
+    tdConfig: ["id", "firstName", "lastName", "dateOfBirth"],
+    removeFn: handleRemoveItem,
+    collectionName: "students"
+}
 
   return (
     <Container
@@ -167,7 +185,8 @@ const Subject = () => {
             ))}
           </TextField>
           <Box sx={{ marginY: 2 }}>
-            <FormLabel>Nastavnici:</FormLabel>
+            <TableTemplate props={teachersTableConfig} />
+            {/* <FormLabel>Nastavnici:</FormLabel>
             <TableContainer>
               <Table
                 sx={{ minWidth: "80%" }}
@@ -205,7 +224,7 @@ const Subject = () => {
                   ))}
                 </TableBody>
               </Table>
-            </TableContainer>
+            </TableContainer> */}
             <Box
               sx={{
                 display: "flex",
@@ -242,7 +261,8 @@ const Subject = () => {
             </Box>
           </Box>
           <Box sx={{ marginY: 2 }}>
-            <FormLabel>Učenici:</FormLabel>
+            <TableTemplate props={studentsTableConfig} />
+            {/* <FormLabel>Učenici:</FormLabel>
             <TableContainer>
               <Table sx={{ minWidth: 650 }} size="small" aria-label="Učenici">
                 <TableHead>
@@ -279,7 +299,7 @@ const Subject = () => {
                   ))}
                 </TableBody>
               </Table>
-            </TableContainer>
+            </TableContainer> */}
             <Box
               sx={{
                 display: "flex",
