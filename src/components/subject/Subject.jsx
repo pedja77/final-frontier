@@ -27,52 +27,30 @@ import { useImmerReducer } from "use-immer";
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
-    case "subject_name_changed": {
-      draft.subject.subjectName = action.name;
-      break;
+    case 'input_changed': {
+        draft.subject[action.name] = action.value;
+        break;
     }
-    case "weekly_fund_changed": {
-      draft.subject.weeklyFund = action.fund;
-      break;
+    case 'remove_item': {
+        const index = draft.subject[action.collection].findIndex(
+            c => c.id === action.item.id
+        );
+        if (index !== -1) {
+            draft.subject[action.collection].splice(index, 1);
+        }
+        break;
     }
-    case "grade_changed": {
-      draft.subject.grade = action.grade;
-      break;
+    case 'set_new_option': {
+        draft[action.optionType] = action.option;
+        break;
     }
-    case "remove_teacher": {
-      console.log("remove_teacher " + JSON.stringify(action.teacher));
-      const index = draft.subject.teachers.findIndex(
-        (t) => t.id === action.teacher.id
-      );
-      if (index !== -1) {
-        draft.subject.teachers.splice(action.index, 1);
-      }
-      break;
-    }
-    case "set_new_teacher": {
-      draft.newTeacher = action.teacher;
-      break;
-    }
-    case "add_new_teacher": {
-      draft.subject.teachers.push(draft.newTeacher);
-      draft.newTeacher = null;
-      break;
-    }
-    case "remove_student": {
-      draft.subject.students.splice(action.index, 1);
-      break;
-    }
-    case "set_new_student": {
-      draft.newStudent = action.student;
-      break;
-    }
-    case "add_new_student": {
-      draft.subject.students.push(draft.newStudent);
-      draft.newStudent = null;
-      break;
+    case 'add_new_item': {
+        draft.subject[action.collection].push(draft[action.item]);
+        draft[action.item] = null;
+        break;
     }
     case "reset_form": {
-      draft = action.newState;
+      draft.subject = action.subject;
       break;
     }
     default: {
@@ -94,29 +72,44 @@ const Subject = () => {
     newStudent: null,
   });
 
-  const handleRemoveTeacher = (e, teacher) => {
-    //    const index = state.teachers.findIndex(t => t.id === teacher.id);
-    //    if (index !== -1) {
-    //     dispatch({
-    //         type: 'remove_teacher',
-    //         index
-    //     })
-    //    }
+  const handleRemoveItem = (e, item, collection) => {
     dispatch({
-      type: "remove_teacher",
-      teacher,
-    });
-  };
+        type: 'remove_item',
+        item,
+        collection
+    })
+  }
 
-  const handleRemoveStudent = (e, student) => {
-    const index = state.subject.students.findIndex((s) => s.id === student.id);
-    if (index !== -1) {
-      dispatch({
-        type: "remove_student",
-        index,
-      });
-    }
-  };
+  const handleSetNewOption = (e, v, optionType) => {
+    dispatch({
+        type: 'set_new_option',
+        option: v,
+        optionType
+    });
+  }
+
+  const handleAddNewItem = (item, collection) => {
+    dispatch({
+        type: 'add_new_item',
+        item,
+        collection
+    })
+  }
+
+  const handleInputChanged = (e) => {
+    dispatch({
+        type: 'input_changed',
+        value: e.target.value,
+        name: e.target.name
+
+    })
+  }
+
+  /*
+*    TODO:
+*       - kad se promeni razred, azurirati ucenike u autocompletu
+*
+*/
 
   return (
     <Container
@@ -145,39 +138,27 @@ const Subject = () => {
           <FormLabel>id: {state.subject.id}</FormLabel>
           <TextField
             label="Naziv"
+            name="subjectName"
             value={state.subject.subjectName}
             sx={{ marginBottom: 2 }}
-            onChange={(e) =>
-              dispatch({
-                type: "subject_name_changed",
-                name: e.target.value,
-              })
-            }
+            onChange={handleInputChanged}
           />
           <TextField
             label="Nedeljni fond časova"
+            name="weeklyFund"
             type="number"
             value={state.subject.weeklyFund}
             inputProps={{ min: 0 }}
             sx={{ marginBottom: 2 }}
-            onChange={(e) =>
-              dispatch({
-                type: "weekly_fund_changed",
-                fund: e.target.value,
-              })
-            }
+            onChange={handleInputChanged}
           />
           <TextField
             value={state.subject.grade}
             label="Razred"
+            name="grade"
             select
             sx={{ marginBottom: 2 }}
-            onChange={(e) => {
-              dispatch({
-                type: "grade_changed",
-                grade: e.target.value,
-              });
-            }}
+            onChange={handleInputChanged}
           >
             {grades.map((g) => (
               <MenuItem key={g.id} value={g.grade}>
@@ -209,7 +190,7 @@ const Subject = () => {
                       <TableCell align="right">
                         <Tooltip title="Obriši">
                           <IconButton
-                            onClick={(e) => handleRemoveTeacher(e, t)}
+                            onClick={(e) => handleRemoveItem(e, t, 'teachers')}
                           >
                             <Delete />
                           </IconButton>
@@ -242,21 +223,17 @@ const Subject = () => {
                   <TextField {...params} label="Dodeli predmet nastavniku" />
                 )}
                 value={state.newTeacher}
-                onChange={(e, v) => {
-                  dispatch({
-                    type: "set_new_teacher",
-                    teacher: v,
-                  });
-                }}
+                onChange={(e, v) => handleSetNewOption(e, v, 'newTeacher')}
               />
               <Tooltip title="Dodaj novog nastavnika">
                 <span>
                   <IconButton
                     disabled={state.newTeacher === null}
                     size="large"
-                    onClick={() => {
-                      dispatch({ type: "add_new_teacher" });
-                    }}
+                    onClick={() => handleAddNewItem('newTeacher', 'teachers')}
+                    // onClick={() => {
+                    //   dispatch({ type: "add_new_teacher" });
+                    // }}
                   >
                     <AddBoxSharp fontSize="large" />
                   </IconButton>
@@ -277,6 +254,7 @@ const Subject = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                    {console.log(state.subject.students)}
                   {state.subject.students.map((t) => (
                     <TableRow key={t.id}>
                       <TableCell>{t.id}</TableCell>
@@ -286,7 +264,7 @@ const Subject = () => {
                       <TableCell align="right">
                         <Tooltip title="Obriši">
                           <IconButton
-                            onClick={(e) => handleRemoveStudent(e, t)}
+                            onClick={(e) => handleRemoveItem(e, t, 'students')}
                           >
                             <Delete />
                           </IconButton>
@@ -319,12 +297,7 @@ const Subject = () => {
                   <TextField {...params} label="Dodeli predmet učeniku" />
                 )}
                 value={state.newStudent}
-                onChange={(e, v) =>
-                  dispatch({
-                    type: "set_new_student",
-                    student: v,
-                  })
-                }
+                onChange={(e, v) => handleSetNewOption(e, v, 'newStudent')}
               />
 
               <Tooltip title="Dodaj novog učenika">
@@ -332,7 +305,7 @@ const Subject = () => {
                   <IconButton
                     disabled={state.newStudent === null}
                     size="large"
-                    onClick={() => dispatch({ type: "add_new_student" })}
+                    onClick={() => handleAddNewItem('newStudent', 'students')}
                   >
                     <AddBoxSharp fontSize="large" />
                   </IconButton>
@@ -344,13 +317,13 @@ const Subject = () => {
             <Button
               variant="outlined"
               onClick={() => {
-                console.log(JSON.stringify(subject, null, 4));
-                let s = structuredClone(subject);
-                s.students = JSON.stringify(subject.students);
-                s.teachers = JSON.stringify(subject.teachers);
+                console.log(JSON.stringify(state.subject, null, 4));
+                let s = structuredClone(state.subject);
+                s.students = JSON.stringify(state.subject.students);
+                s.teachers = JSON.stringify(state.subject.teachers);
                 fetcher.submit(s, {
                   method: "put",
-                  action: `/subjects/${subject.id}`,
+                  action: `/subjects/${state.subject.id}`,
                 });
               }}
             >
@@ -362,7 +335,7 @@ const Subject = () => {
               onClick={() =>
                 dispatch({
                   type: "reset_form",
-                  newState: sub,
+                  subject: sub,
                 })
               }
             >
