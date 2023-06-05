@@ -7,28 +7,49 @@ import {
   MenuItem,
   Divider,
 } from "@mui/material";
-import { useFetcher, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import SubjectCard from "./SubjectCard";
-import { useEffect, useState } from "react";
-import {getToken} from '../../utils/token.js';
+import { useEffect } from "react";
+import { getToken } from "../../utils/token.js";
 import { gradeToString } from "../../utils/textTools";
-import { useFetchData } from "../../hooks/customHooks";
+import { useImmerReducer } from "use-immer";
+
+const subjectsReducer = (draft, action) => {
+  switch (action.type) {
+    case "search_changed": {
+      draft.nameQuery = action.text;
+      break;
+    }
+    case "grade_changed": {
+      draft.gradeQuery = action.value;
+      break;
+    }
+    case "subjects_changed": {
+      draft.subjects = action.sub;
+      break;
+    }
+    default: {
+      throwError("No such action: ", action.type);
+    }
+  }
+};
 
 const Subjects = () => {
   const [subs, grades] = useLoaderData();
-  const [subjects, setSubjects] = useState(subs);
-  const [nameQuery, setNameQuery] = useState("");
-  const [gradeQuery, setGradeQuery] = useState(0);
 
-  // const fetcher = useFetcher();
+  const [state, dispatch] = useImmerReducer(subjectsReducer, {
+    subjects: structuredClone(subs),
+    nameQuery: "",
+    gradeQuery: 0,
+  });
 
   useEffect(() => {
     let ignore = false;
     const getData = async () => {
       const response = await fetch(
         `http://localhost:8080/api/v1/subjects/search?query=${encodeURIComponent(
-          nameQuery
-        )}&grade=${encodeURIComponent(gradeQuery)}`,
+          state.nameQuery
+        )}&grade=${encodeURIComponent(state.gradeQuery)}`,
         {
           method: "GET",
           headers: {
@@ -36,16 +57,31 @@ const Subjects = () => {
           },
         }
       );
-      console.log(ignore)
       if (!ignore) {
-        console.log(ignore)
-        const subs = await response.json();
-        setSubjects(subs);
+        const s = await response.json();
+        dispatch({
+          type: "subjects_changed",
+          sub: s,
+        });
       }
     };
     getData();
-    return () => ignore = true;
-  }, [nameQuery, gradeQuery]);
+    return () => (ignore = true);
+  }, [state.nameQuery, state.gradeQuery]);
+
+  const handleSearchChange = (e) => {
+    dispatch({
+      type: "search_changed",
+      text: e.target.value,
+    });
+  };
+
+  const handleGradeChange = (e) => {
+    dispatch({
+      type: "grade_changed",
+      value: e.target.value,
+    });
+  };
 
   return (
     <>
@@ -53,14 +89,14 @@ const Subjects = () => {
         <Stack direction="row" sx={{ padding: "24px" }}>
           <TextField
             placeholder="Pretraga po nazivu predmeta..."
-            value={nameQuery}
-            onChange={(e) => setNameQuery(e.target.value)}
+            value={state.nameQuery}
+            onChange={handleSearchChange}
             sx={{ flexGrow: 8 }}
             name="subjectSearchTextField"
           />
           <Select
-            value={gradeQuery}
-            onChange={(e) => setGradeQuery(e.target.value)}
+            value={state.gradeQuery}
+            onChange={handleGradeChange}
             sx={{ flexGrow: 2 }}
             placeholder="Razred"
           >
@@ -68,6 +104,7 @@ const Subjects = () => {
               Svi razredi
             </MenuItem>
             <Divider />
+
             {grades.map((g) => (
               <MenuItem key={g.id} value={g.grade}>
                 {gradeToString.get(g.grade)}
@@ -84,7 +121,7 @@ const Subjects = () => {
             paddingBottom: "4vh",
           }}
         >
-          {subjects.map((el) => (
+          {state.subjects.map((el) => (
             <SubjectCard key={el.id} subject={el} />
           ))}
         </Container>
