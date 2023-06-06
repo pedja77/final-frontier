@@ -3,19 +3,22 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Subjects from "./components/subject/Subjects.jsx";
-import { getToken } from "./utils/token.js";
+import { checkLogin, getToken } from "./utils/token.js";
 import Subject from "./components/subject/Subject.jsx";
+import Error from "./components/Error.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <Error />,
     children: [
       {
         element: <Subjects />,
         path: "/subjects",
         loader: async () => {
           console.log("loader");
+          const user = checkLogin(["ROLE_ADMIN", "ROLE_STUDENT"])
           const token = getToken();
           const response = await fetch(
             `http://localhost:8080/api/v1/subjects`,
@@ -76,6 +79,7 @@ const router = createBrowserRouter([
               },
             }
           );
+          
           const subject = await response.json();
 
           const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
@@ -100,6 +104,7 @@ const router = createBrowserRouter([
               Authorization: getToken()
             }
           });
+          
           const students = await response4.json();
           console.log('students by grade ' + JSON.stringify(students, null, 4));
           return [subject, grades, teachers, students];

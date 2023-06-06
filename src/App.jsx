@@ -158,7 +158,7 @@ function App() {
                 eDnevnik
               </Typography>
               <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
-              <LoginControl safePath={"/"} defaultPath={"/"} isInToolbar={true}/>
+              <LoginControl safePath="/" defaultPath="/subjects" isInToolbar={true}/>
                 <FormGroup sx={{marginLeft: 3}}>
                   <FormControlLabel
                     control={

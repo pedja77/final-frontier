@@ -1,15 +1,17 @@
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 // Vraca string reprezentaciju objekta koji sadrzi username, expiration i niz authorities u kome
 // se nalaze role koje korisnik ima, izmedju ostalog
-export const  decodeJwtPayload = (token) => {
-    const base64Payload = getTokenPayload(token);
-    console.log('decodeJwtPayload ' + Buffer.from(base64Payload, 'base64').toString('utf8'))
-    return Buffer.from(base64Payload, 'base64').toString('utf8');
-  };
+export const decodeJwtPayload = (token) => {
+  const base64Payload = getTokenPayload(token);
+  console.log(
+    "decodeJwtPayload " + Buffer.from(base64Payload, "base64").toString("utf8")
+  );
+  return Buffer.from(base64Payload, "base64").toString("utf8");
+};
 
 // Izbacim "Bearer " i izdvojim drugi od tri segmenta razdvojena tackom
-const getTokenPayload = (token) => token.split(" ")[1].split(".")[1]; 
+const getTokenPayload = (token) => token.split(" ")[1].split(".")[1];
 
 const getUser = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -19,4 +21,25 @@ const getUser = () => {
 
 export const getToken = () => {
   return `Bearer ${getUser().token}`;
+};
+
+export const checkLogin = (roles) => {
+  const user = getUser();
+  if (user === null) {
+    const err = {
+      cause: "login",
+      message: "Korisnik nije logovan",
+    };
+    throw err;
+  } else if (roles) {
+    if (!roles.includes(user.role)) {
+      console.log(user.role);
+      const err = {
+        cause: "security",
+        message: "Korisnik nema pravo pristupa",
+      };
+      throw err;
+    }
+  }
+  return user;
 };

@@ -26,6 +26,8 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  console.log("paths def/safe " + defaultPath + "|" + safePath)
   const handleLogin = async (e) => {
     e.preventDefault();
     const u = await login(username, password);

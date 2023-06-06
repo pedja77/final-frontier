@@ -221,7 +221,7 @@ const Subject = () => {
               onClick={() =>
                 dispatch({
                   type: "reset_form",
-                  subject: sub,
+                  subject: structuredClone(sub),
                 })
               }
             >
