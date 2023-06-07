@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import { errors } from "./responseChecker";
 
 // Vraca string reprezentaciju objekta koji sadrzi username, expiration i niz authorities u kome
 // se nalaze role koje korisnik ima, izmedju ostalog
@@ -26,19 +27,11 @@ export const getToken = () => {
 export const checkLogin = (roles) => {
   const user = getUser();
   if (user === null) {
-    const err = {
-      cause: "login",
-      message: "Korisnik nije logovan",
-    };
-    throw err;
+    throw errors.unauthorized;
   } else if (roles) {
     if (!roles.includes(user.role)) {
       console.log(user.role);
-      const err = {
-        cause: "security",
-        message: "Korisnik nema pravo pristupa",
-      };
-      throw err;
+      throw errors.forbidden;
     }
   }
   return user;

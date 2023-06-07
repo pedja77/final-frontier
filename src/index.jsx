@@ -6,6 +6,7 @@ import Subjects from "./components/subject/Subjects.jsx";
 import { checkLogin, getToken } from "./utils/token.js";
 import Subject from "./components/subject/Subject.jsx";
 import Error from "./components/Error.jsx";
+import { checkResponse } from "./utils/responseChecker.js";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
         path: "/subjects",
         loader: async () => {
           console.log("loader");
-          const user = checkLogin(["ROLE_ADMIN", "ROLE_STUDENT"])
+          const user = checkLogin(["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER"])
           const token = getToken();
           const response = await fetch(
             `http://localhost:8080/api/v1/subjects`,
@@ -29,13 +30,17 @@ const router = createBrowserRouter([
               },
             }
           );
+          checkResponse(response);
           const subjects = await response.json();
+
           const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
             method: "GET",
             headers: {
               Authorization: token,
             },
           });
+          console.log('grades response ' + response2.ok);
+          checkResponse(response2);
           const grades = await response2.json();
 
           return [subjects, grades];
@@ -44,20 +49,15 @@ const router = createBrowserRouter([
           {
             path: "/subjects/search",
             loader:  ({request}) => {
-              console.log('params ' + (new URL(request.url)).searchParams)
+              checkLogin(["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER"])
               const search = (new URL(request.url)).searchParams;
-              // if((new URL(request.url)).searchParams.get("query") !== null){
-              //   console.log("GET operacija koja radi pretragu.");
-              //   return null; 
-              // }else{
-              //   return fetch(`http://localhost:8080/api/v1/genre/${params.id}`);  
-              // }
               const res =  fetch(`http://localhost:8080/api/v1/subjects/search?${search}`, {
                 method: 'GET',
                 headers: {
                   Authorization: getToken()
                 }
               });
+              checkResponse(res);
               // const data = await res.json();
               // console.log('data ' + JSON.stringify(data));
               return res;
@@ -79,7 +79,7 @@ const router = createBrowserRouter([
               },
             }
           );
-          
+          checkResponse(response);
           const subject = await response.json();
 
           const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
@@ -88,6 +88,7 @@ const router = createBrowserRouter([
               Authorization: getToken(),
             },
           });
+          checkResponse(response2);
           const grades = await response2.json();
 
           const response3 = await fetch(`http://localhost:8080/api/v1/teachers`, {
@@ -96,6 +97,7 @@ const router = createBrowserRouter([
               Authorization: getToken()
             },
           });
+          checkResponse(response3);
           const teachers = await response3.json();
           
           const response4 = await fetch(`http://localhost:8080/api/v1/students?grade=${subject.grade}`, {
@@ -104,9 +106,9 @@ const router = createBrowserRouter([
               Authorization: getToken()
             }
           });
-          
+          checkResponse(response4);
           const students = await response4.json();
-          console.log('students by grade ' + JSON.stringify(students, null, 4));
+        
           return [subject, grades, teachers, students];
         },
         action: async ({params, request}) => {
@@ -123,6 +125,7 @@ const router = createBrowserRouter([
             },
             body: JSON.stringify(data)
           })
+          checkResponse(res);
           return res;
         }
       },
