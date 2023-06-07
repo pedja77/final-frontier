@@ -4,7 +4,6 @@ import {
   Container,
   FormControl,
   FormGroup,
-  FormLabel,
   MenuItem,
   TextField,
   Typography,
@@ -102,6 +101,8 @@ const NewSubject = () => {
     getData();
     return () => (ignore = true);
   }, [state.subject.grade]);
+
+  console.log('fetcher data new subject ' + JSON.stringify(fetcher.data));
 
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
@@ -252,8 +253,8 @@ const NewSubject = () => {
                 s.students = JSON.stringify(state.subject.students);
                 s.teachers = JSON.stringify(state.subject.teachers);
                 fetcher.submit(s, {
-                  method: "put",
-                  action: `/subjects/${state.subject.id}`,
+                  method: "post",
+                  action: `/subjects/new`,
                 });
               }}
             >

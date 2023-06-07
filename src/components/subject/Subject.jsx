@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  Collapse,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
   FormControl,
   FormGroup,
   FormLabel,
@@ -9,11 +13,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useFetcher, useLoaderData } from "react-router-dom";
+import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
 import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
+import { useState } from "react";
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -53,6 +58,9 @@ const Subject = () => {
   const [sub, grades, teachers, studentsByGrade] = useLoaderData();
 
   const fetcher = useFetcher();
+
+  const nav = useNavigate();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const [state, dispatch] = useImmerReducer(subjectReducer, {
     subject: structuredClone(sub),
@@ -110,12 +118,13 @@ const Subject = () => {
     itemName: "nastavnik",
     newItemName: "newTeacher",
     newItem: state.newTeacher,
-    options: teachers, 
+    options: teachers,
     collection: "teachers",
     forFilterOptions: state.subject.teachers,
     labelOptions: ["firstName", "lastName"],
     handleSetNewOption,
-    handleAddNewItem };
+    handleAddNewItem,
+  };
 
   const studentsTableProps = {
     tableLabel: "Učenici",
@@ -130,12 +139,13 @@ const Subject = () => {
     itemName: "učenik",
     newItemName: "newStudent",
     newItem: state.newStudent,
-    options: studentsByGrade, 
+    options: studentsByGrade,
     collection: "students",
     forFilterOptions: state.subject.students,
     labelOptions: ["firstName", "lastName"],
     handleSetNewOption,
-    handleAddNewItem };
+    handleAddNewItem,
+  };
 
   return (
     <Container
@@ -192,44 +202,96 @@ const Subject = () => {
               </MenuItem>
             ))}
           </TextField>
-          <Box sx={{ marginY: 2}}>
+          <Box sx={{ marginY: 2 }}>
             <TableTemplate props={teachersTableProps} />
             <AddItem props={teachersAddItemProps} />
-          
+
             <TableTemplate props={studentsTableProps} />
             <AddItem props={studentsAddItemProps} />
           </Box>
-          <FormGroup sx={{ display: "flex", flexDirection: "row-reverse" }}>
+          <Collapse in={isAlertOpen}></Collapse>
+          <FormGroup
+            sx={{
+              display: "flex",
+              flexDirection: "row-reverse",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Button
+                variant="contained"
+                sx={{ marginRight: 1 }}
+                onClick={() =>
+                  dispatch({
+                    type: "reset_form",
+                    subject: structuredClone(sub),
+                  })
+                }
+              >
+                Otkaži
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={async () => {
+                  console.log(JSON.stringify(state.subject, null, 4));
+                  let s = structuredClone(state.subject);
+                  s.students = JSON.stringify(state.subject.students);
+                  s.teachers = JSON.stringify(state.subject.teachers);
+                  fetcher.submit(s, {
+                    method: "put",
+                    action: `/subjects/${state.subject.id}`,
+                  });
+                }}
+              >
+                Sačuvaj
+              </Button>
+            </Box>
             <Button
               variant="outlined"
-              onClick={() => {
-                console.log(JSON.stringify(state.subject, null, 4));
-                let s = structuredClone(state.subject);
-                s.students = JSON.stringify(state.subject.students);
-                s.teachers = JSON.stringify(state.subject.teachers);
-                fetcher.submit(s, {
-                  method: "put",
-                  action: `/subjects/${state.subject.id}`,
-                });
+              onClick={async (e) => {
+                e.preventDefault();
+                // e.cancelBubble();
+                setIsAlertOpen(true);
+                // fetcher.submit(
+                //   {},
+                //   {
+                //     method: "delete",
+                //     action: `/subjects/${state.subject.id}`,
+                //   }
+                // );
               }}
             >
-              Sačuvaj
-            </Button>
-            <Button
-              variant="contained"
-              sx={{ marginRight: 1 }}
-              onClick={() =>
-                dispatch({
-                  type: "reset_form",
-                  subject: structuredClone(sub),
-                })
-              }
-            >
-              Otkaži
+              Obriši
             </Button>
           </FormGroup>
         </FormControl>
       </form>
+      <Dialog
+        // selectedValue={}
+        open={isAlertOpen}
+      >
+        <DialogContent>
+          Da li zaista želite da obrišete predmet {state.subject.subjectName} iz
+          baze?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              fetcher.submit(
+                {},
+                {
+                  method: "delete",
+                  action: `/subjects/${state.subject.id}`,
+                }
+              );
+              nav("/subjects");
+            }}
+          >
+            Da
+          </Button>
+          <Button autoFocus onClick={() => setIsAlertOpen(false)}>Ne</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

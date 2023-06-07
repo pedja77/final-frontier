@@ -117,17 +117,15 @@ const Subjects = () => {
               </MenuItem>
             ))}
           </Select>
-          <Tooltip title="Dodaj novi predmet">
-            <span>
-              <IconButton 
-                size="larger"
-                disabled={getUserRole() !== "ROLE_ADMIN"}
-                href="/subjects/new"
-              >
-                <AddCard fontSize="large" />
-              </IconButton>
-            </span>
-          </Tooltip>
+          {getUserRole() === "ROLE_ADMIN" && ( // prikazi dodavanje novog predmeta samo ako je korisnik admin
+            <Tooltip title="Dodaj novi predmet">
+              <span>
+                <IconButton size="larger" href="/subjects/new">
+                  <AddCard fontSize="large" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
         </Stack>
         <Container
           sx={{
