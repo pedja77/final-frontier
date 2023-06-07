@@ -13,7 +13,6 @@ import { Autocomplete, Box, IconButton, TextField, Tooltip } from "@mui/material
  * handleSetNewOption,
  * handleAddNewItem }*/
 const AddItem = ({props}) => {
-    console.log(props.options)
   return (
     <Box
       sx={{

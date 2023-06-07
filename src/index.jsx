@@ -7,6 +7,7 @@ import { checkLogin, getToken } from "./utils/token.js";
 import Subject from "./components/subject/Subject.jsx";
 import Error from "./components/Error.jsx";
 import { checkResponse } from "./utils/responseChecker.js";
+import NewSubject from "./components/subject/NewSubject.jsx";
 
 const router = createBrowserRouter([
   {
@@ -128,6 +129,40 @@ const router = createBrowserRouter([
           checkResponse(res);
           return res;
         }
+      },
+      {
+        path: "/subjects/new",
+        element: <NewSubject />,
+        loader: async ({ params }) => {
+          const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
+            method: "GET",
+            headers: {
+              Authorization: getToken(),
+            },
+          });
+          checkResponse(response2);
+          const grades = await response2.json();
+
+          const response3 = await fetch(`http://localhost:8080/api/v1/teachers`, {
+            method: 'GET',
+            headers: {
+              Authorization: getToken()
+            },
+          });
+          checkResponse(response3);
+          const teachers = await response3.json();
+          
+          // const response4 = await fetch(`http://localhost:8080/api/v1/students?grade=${subject.grade}`, {
+          //   method: 'GET',
+          //   headers: {
+          //     Authorization: getToken()
+          //   }
+          // });
+          // checkResponse(response4);
+          // const students = await response4.json();
+          // const students = [];
+          return [grades, teachers]; //, students];
+        },
       },
     ],
   },

@@ -6,13 +6,16 @@ import {
   Select,
   MenuItem,
   Divider,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { useLoaderData } from "react-router-dom";
 import SubjectCard from "./SubjectCard";
 import { useEffect } from "react";
-import { getToken } from "../../utils/token.js";
+import { getToken, getUserRole } from "../../utils/token.js";
 import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
+import { AddCard } from "@mui/icons-material";
 
 const subjectsReducer = (draft, action) => {
   switch (action.type) {
@@ -86,7 +89,10 @@ const Subjects = () => {
   return (
     <>
       <Stack direction="column">
-        <Stack direction="row" sx={{ padding: "24px" }}>
+        <Stack
+          direction="row"
+          sx={{ padding: "24px", justifyContent: "space-around" }}
+        >
           <TextField
             placeholder="Pretraga po nazivu predmeta..."
             value={state.nameQuery}
@@ -111,6 +117,17 @@ const Subjects = () => {
               </MenuItem>
             ))}
           </Select>
+          <Tooltip title="Dodaj novi predmet">
+            <span>
+              <IconButton 
+                size="larger"
+                disabled={getUserRole() !== "ROLE_ADMIN"}
+                href="/subjects/new"
+              >
+                <AddCard fontSize="large" />
+              </IconButton>
+            </span>
+          </Tooltip>
         </Stack>
         <Container
           sx={{

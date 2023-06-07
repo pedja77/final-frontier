@@ -36,3 +36,5 @@ export const checkLogin = (roles) => {
   }
   return user;
 };
+
+export const getUserRole = () => getUser().role;
