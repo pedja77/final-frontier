@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { gradeToString, sufix } from "../../utils/textTools";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 
 
@@ -39,7 +39,7 @@ const SubjectCard = ({ subject }) => {
         </Typography>
       </CardContent>
       <CardActions sx={{display: 'flex', flexDirection: 'row-reverse'}}>
-        <Button component={Link} to={`/subjects/${subject.id}`}>Prikaži</Button>
+        <Button component={NavLink} to={`/subjects/${subject.id}`}>Prikaži</Button>
       </CardActions>
     </Card>
   );

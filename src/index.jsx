@@ -8,6 +8,9 @@ import Subject from "./components/subject/Subject.jsx";
 import Error from "./components/Error.jsx";
 import { checkResponse } from "./utils/responseChecker.js";
 import NewSubject from "./components/subject/NewSubject.jsx";
+import Teachers from "./components/teacher/Teachers.jsx";
+import Teacher from "./components/teacher/Teacher.jsx";
+import NewTeacher from "./components/teacher/NewTeacher.jsx";
 
 const router = createBrowserRouter([
   {
@@ -213,6 +216,30 @@ const router = createBrowserRouter([
           checkResponse(res);
           return res;
         },
+      },
+      {
+        path: "/teachers",
+        element: <Teachers />,
+        loader: async () => {
+          const response = await fetch("http://localhost:8080/api/v1/teachers", {
+            method: 'GET',
+            headers: {
+              Authorization: getToken()
+            }
+          });
+          checkResponse(response);
+          const teachers = await response.json();
+
+          return teachers;
+        }
+      },
+      {
+        path: "/teachers/:id",
+        element: <Teacher />,
+      },
+      {
+        path: "/teachers/new",
+        element: <NewTeacher />,
       },
     ],
   },

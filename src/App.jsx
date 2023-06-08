@@ -205,16 +205,8 @@ function App() {
               </ListItem>
               <Divider />
               <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemText primary="Authors" />
-                </ListItemButton>
-              </ListItem>
-              <Divider />
-              <ListItem disablePadding>
-                {" "}
-                {/**  component={NavLink} to="#"> */}
-                <ListItemButton>
-                  <ListItemText primary="Genres" />
+                <ListItemButton component={NavLink} to="/teachers">
+                  <ListItemText primary="Nastavnici" />
                 </ListItemButton>
               </ListItem>
               <Divider />

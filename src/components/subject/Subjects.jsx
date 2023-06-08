@@ -9,7 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { useLoaderData } from "react-router-dom";
+import { NavLink, useLoaderData } from "react-router-dom";
 import SubjectCard from "./SubjectCard";
 import { useEffect } from "react";
 import { getToken, getUserRole } from "../../utils/token.js";
@@ -120,7 +120,7 @@ const Subjects = () => {
           {getUserRole() === "ROLE_ADMIN" && ( // prikazi dodavanje novog predmeta samo ako je korisnik admin
             <Tooltip title="Dodaj novi predmet">
               <span>
-                <IconButton size="larger" href="/subjects/new">
+                <IconButton size="larger" component={NavLink} to="/subjects/new">
                   <AddCard fontSize="large" />
                 </IconButton>
               </span>
