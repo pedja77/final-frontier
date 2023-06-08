@@ -19,6 +19,7 @@ import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
 import { useState } from "react";
+import { getUserRole } from "../../utils/token";
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -164,6 +165,7 @@ const Subject = () => {
         Za {gradeToString.get(state.subject.grade)} razred
       </Typography>
       <form>
+        {/* <fieldset disabled={getUserRole() !== "ROLE_ADMIN"} style={{border: '0'}}> */}
         <FormControl
           sx={{
             display: "flex",
@@ -172,42 +174,63 @@ const Subject = () => {
           }}
         >
           <FormLabel>id: {state.subject.id}</FormLabel>
-          <TextField
-            label="Naziv"
-            name="subjectName"
-            value={state.subject.subjectName}
-            sx={{ marginBottom: 2 }}
-            onChange={handleInputChanged}
-          />
-          <TextField
-            label="Nedeljni fond časova"
-            name="weeklyFund"
-            type="number"
-            value={state.subject.weeklyFund}
-            inputProps={{ min: 0 }}
-            sx={{ marginBottom: 2 }}
-            onChange={handleInputChanged}
-          />
-          <TextField
-            value={state.subject.grade}
-            label="Razred"
-            name="grade"
-            select
-            sx={{ marginBottom: 2 }}
-            onChange={handleInputChanged}
-          >
-            {grades.map((g) => (
-              <MenuItem key={g.id} value={g.grade}>
-                {gradeToString.get(g.grade)}
-              </MenuItem>
-            ))}
-          </TextField>
+          {getUserRole() === "ROLE_ADMIN" ? (
+            <>
+              <TextField
+                label="Naziv"
+                name="subjectName"
+                value={state.subject.subjectName}
+                sx={{ marginBottom: 2 }}
+                onChange={handleInputChanged}
+              />
+              <TextField
+                label="Nedeljni fond časova"
+                name="weeklyFund"
+                type="number"
+                value={state.subject.weeklyFund}
+                inputProps={{ min: 0 }}
+                sx={{ marginBottom: 2 }}
+                onChange={handleInputChanged}
+              />
+              <TextField
+                value={state.subject.grade}
+                label="Razred"
+                name="grade"
+                select
+                sx={{ marginBottom: 2 }}
+                onChange={handleInputChanged}
+              >
+                {grades.map((g) => (
+                  <MenuItem key={g.id} value={g.grade}>
+                    {gradeToString.get(g.grade)}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </>
+          ) : (
+            <>
+              <Typography>
+                Naziv predmeta: {state.subject.subjectName}
+              </Typography>
+              <Typography>
+                Razred: {gradeToString.get(state.subject.grade)}
+              </Typography>
+              <Typography>
+                Nedeljni fond časova: {state.subject.weeklyFund}
+              </Typography>
+            </>
+          )}
+
           <Box sx={{ marginY: 2 }}>
             <TableTemplate props={teachersTableProps} />
-            <AddItem props={teachersAddItemProps} />
+            {getUserRole() === "ROLE_ADMIN" && (
+              <AddItem props={teachersAddItemProps} />
+            )}
 
             <TableTemplate props={studentsTableProps} />
-            <AddItem props={studentsAddItemProps} />
+            {getUserRole() === "ROLE_ADMIN" && (
+              <AddItem props={studentsAddItemProps} />
+            )}
           </Box>
           <Collapse in={isAlertOpen}></Collapse>
           <FormGroup
@@ -217,54 +240,59 @@ const Subject = () => {
               justifyContent: "space-between",
             }}
           >
-            <Box>
-              <Button
-                variant="contained"
-                sx={{ marginRight: 1 }}
-                onClick={() =>
-                  dispatch({
-                    type: "reset_form",
-                    subject: structuredClone(sub),
-                  })
-                }
-              >
-                Otkaži
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={async () => {
-                  console.log(JSON.stringify(state.subject, null, 4));
-                  let s = structuredClone(state.subject);
-                  s.students = JSON.stringify(state.subject.students);
-                  s.teachers = JSON.stringify(state.subject.teachers);
-                  fetcher.submit(s, {
-                    method: "put",
-                    action: `/subjects/${state.subject.id}`,
-                  });
-                }}
-              >
-                Sačuvaj
-              </Button>
-            </Box>
-            <Button
-              variant="outlined"
-              onClick={async (e) => {
-                e.preventDefault();
-                // e.cancelBubble();
-                setIsAlertOpen(true);
-                // fetcher.submit(
-                //   {},
-                //   {
-                //     method: "delete",
-                //     action: `/subjects/${state.subject.id}`,
-                //   }
-                // );
-              }}
-            >
-              Obriši
-            </Button>
+            {getUserRole() === "ROLE_ADMIN" && (
+              <>
+                <Box>
+                  <Button
+                    variant="contained"
+                    sx={{ marginRight: 1 }}
+                    onClick={() =>
+                      dispatch({
+                        type: "reset_form",
+                        subject: structuredClone(sub),
+                      })
+                    }
+                  >
+                    Otkaži
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={async () => {
+                      console.log(JSON.stringify(state.subject, null, 4));
+                      let s = structuredClone(state.subject);
+                      s.students = JSON.stringify(state.subject.students);
+                      s.teachers = JSON.stringify(state.subject.teachers);
+                      fetcher.submit(s, {
+                        method: "put",
+                        action: `/subjects/${state.subject.id}`,
+                      });
+                    }}
+                  >
+                    Sačuvaj
+                  </Button>
+                </Box>
+                <Button
+                  variant="outlined"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    // e.cancelBubble();
+                    setIsAlertOpen(true);
+                    // fetcher.submit(
+                    //   {},
+                    //   {
+                    //     method: "delete",
+                    //     action: `/subjects/${state.subject.id}`,
+                    //   }
+                    // );
+                  }}
+                >
+                  Obriši
+                </Button>
+              </>
+            )}
           </FormGroup>
         </FormControl>
+        {/* </fieldset> */}
       </form>
       <Dialog
         // selectedValue={}
@@ -289,7 +317,9 @@ const Subject = () => {
           >
             Da
           </Button>
-          <Button autoFocus onClick={() => setIsAlertOpen(false)}>Ne</Button>
+          <Button autoFocus onClick={() => setIsAlertOpen(false)}>
+            Ne
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

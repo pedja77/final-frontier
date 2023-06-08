@@ -78,6 +78,7 @@ const router = createBrowserRouter([
         path: "subjects/:id",
         loader: async ({ params }) => {
           console.log("params " + JSON.stringify(params));
+          const user = checkLogin(["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER"]);
           const response = await fetch(
             `http://localhost:8080/api/v1/subjects/${params.id}`,
             {

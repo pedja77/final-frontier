@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { getUserRole } from "../../utils/token";
 
 /**props are {tableLabel: String, tableHeaders: [String], tableData:[{}], tdConfig:[String]}, functions */
 const TableTemplate = ({ props }) => {
@@ -33,6 +34,7 @@ const TableTemplate = ({ props }) => {
               {props.tableHeaders.map((th, i) => (
                 <TableCell key={window.crypto.randomUUID()}>{th}</TableCell>
               ))}
+              {getUserRole() === "ROLE_ADMIN" && <TableCell>Akcija</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -41,22 +43,24 @@ const TableTemplate = ({ props }) => {
                 {props.tdConfig.map((e) => (
                   <TableCell key={t[e]}>{t[e]}</TableCell>
                 ))}
-                <TableCell align="right">
-                  <Tooltip title="Obriši">
-                    <IconButton
-                      onClick={(e) =>
-                        props.removeFn(e, t, props.collectionName)
-                      }
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Izmeni">
-                    <IconButton>
-                      <Edit />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
+                {getUserRole() === "ROLE_ADMIN" && (
+                  <TableCell align="right">
+                    <Tooltip title="Obriši">
+                      <IconButton
+                        onClick={(e) =>
+                          props.removeFn(e, t, props.collectionName)
+                        }
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Izmeni">
+                      <IconButton>
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
