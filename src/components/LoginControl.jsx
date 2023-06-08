@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import App from "../App";
+import { getUsername } from "../utils/token";
 
 export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
   const { user, login, logout } = useContext(UserContext);
@@ -57,7 +58,7 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
         }}
         color={isInToolbar ? "secondary" : "primary"}
       >
-        {user ? "Logout" : "Login"}
+        {user ? `Logout ${getUsername()}` : "Login"}
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Login</DialogTitle>
@@ -66,8 +67,8 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
             Molimo unesite korisničko ime i lozinku.
           </DialogContentText>
           <TextField
-            autoFocus
-            focused
+            autoFocus={true}
+            focused={true}
             id="username"
             label="Korisničko ime"
             type="text"

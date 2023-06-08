@@ -38,3 +38,5 @@ export const checkLogin = (roles) => {
 };
 
 export const getUserRole = () => getUser().role;
+
+export const getUsername = () => getUser().user
