@@ -26,14 +26,14 @@ const AddItem = ({props}) => {
         options={props.options.filter((t) =>
           props.forFilterOptions.every((st) => st.id !== t.id)
         )}
-        getOptionLabel={(a) => `${a[props.labelOptions[0]]} ${a[props.labelOptions[1]]}`}
+        getOptionLabel={(a) => `${a[props.labelOptions[0]]} ${a[props.labelOptions[1]] || ""}`}
         renderInput={(params) => (
-          <TextField {...params} label={`Dodeli predmet ${props.itemName}u`} />
+          <TextField {...params} label={`Dodeli ${props.itemName}`} />
         )}
         value={props.newItem}
         onChange={(e, v) => props.handleSetNewOption(e, v, props.newItemName)}
       />
-      <Tooltip title={`Dodaj novog ${props.itemName}a`}>
+      <Tooltip title={`Dodaj ${props.itemName}`}>
         <span>
           <IconButton
             disabled={props.newItem === null}

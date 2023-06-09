@@ -35,12 +35,10 @@ const subjectsReducer = (draft, action) => {
 
 const Teachers = () => {
   const t = useLoaderData();
-    console.log('teachers compo '+ JSON.stringify(t, null, 4))
   const [state, dispatch] = useImmerReducer(subjectsReducer, {
     teachers: structuredClone(t),
     nameQuery: "",
   });
-  console.log('teachers compo state'+ JSON.stringify(state.teachers, null, 4))
   useEffect(() => {
     let ignore = false;
     const getData = async () => {

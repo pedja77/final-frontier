@@ -20,6 +20,7 @@ import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
 import { useState } from "react";
 import { getUserRole } from "../../utils/token";
+import EditButtons from "../lib/EditButtons";
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -101,11 +102,34 @@ const Subject = () => {
     });
   };
 
-  /*
-   *    TODO:
-   *       - kad se promeni razred, azurirati ucenike u autocompletu
-   *
-   */
+  const onResetClick = () =>
+    dispatch({
+      type: "reset_form",
+      subject: structuredClone(sub),
+    });
+
+  const onSaveClick = async () => {
+    console.log(JSON.stringify(state.subject, null, 4));
+    let s = structuredClone(state.subject);
+    s.students = JSON.stringify(state.subject.students);
+    s.teachers = JSON.stringify(state.subject.teachers);
+    fetcher.submit(s, {
+      method: "put",
+      action: `/subjects/${state.subject.id}`,
+    });
+  };
+
+  const onDeleteClick = () => {
+    fetcher.submit(
+      {},
+      {
+        method: "delete",
+        action: `/subjects/${state.subject.id}`,
+      }
+    );
+    nav("/subjects");
+  }
+
   const teachersTableProps = {
     tableLabel: "Nastavnici",
     tableHeaders: ["Id", "Ime", "Prezime"],
@@ -116,7 +140,7 @@ const Subject = () => {
   };
 
   const teachersAddItemProps = {
-    itemName: "nastavnik",
+    itemName: "nastavnika",
     newItemName: "newTeacher",
     newItem: state.newTeacher,
     options: teachers,
@@ -137,7 +161,7 @@ const Subject = () => {
   };
 
   const studentsAddItemProps = {
-    itemName: "učenik",
+    itemName: "učenika",
     newItemName: "newStudent",
     newItem: state.newStudent,
     options: studentsByGrade,
@@ -165,7 +189,6 @@ const Subject = () => {
         Za {gradeToString.get(state.subject.grade)} razred
       </Typography>
       <form>
-        {/* <fieldset disabled={getUserRole() !== "ROLE_ADMIN"} style={{border: '0'}}> */}
         <FormControl
           sx={{
             display: "flex",
@@ -232,96 +255,14 @@ const Subject = () => {
               <AddItem props={studentsAddItemProps} />
             )}
           </Box>
-          <Collapse in={isAlertOpen}></Collapse>
-          <FormGroup
-            sx={{
-              display: "flex",
-              flexDirection: "row-reverse",
-              justifyContent: "space-between",
-            }}
-          >
-            {getUserRole() === "ROLE_ADMIN" && (
-              <>
-                <Box>
-                  <Button
-                    variant="contained"
-                    sx={{ marginRight: 1 }}
-                    onClick={() =>
-                      dispatch({
-                        type: "reset_form",
-                        subject: structuredClone(sub),
-                      })
-                    }
-                  >
-                    Otkaži
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={async () => {
-                      console.log(JSON.stringify(state.subject, null, 4));
-                      let s = structuredClone(state.subject);
-                      s.students = JSON.stringify(state.subject.students);
-                      s.teachers = JSON.stringify(state.subject.teachers);
-                      fetcher.submit(s, {
-                        method: "put",
-                        action: `/subjects/${state.subject.id}`,
-                      });
-                    }}
-                  >
-                    Sačuvaj
-                  </Button>
-                </Box>
-                <Button
-                  variant="outlined"
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    // e.cancelBubble();
-                    setIsAlertOpen(true);
-                    // fetcher.submit(
-                    //   {},
-                    //   {
-                    //     method: "delete",
-                    //     action: `/subjects/${state.subject.id}`,
-                    //   }
-                    // );
-                  }}
-                >
-                  Obriši
-                </Button>
-              </>
-            )}
-          </FormGroup>
+          <EditButtons
+            onSaveClick={onSaveClick}
+            onResetClick={onResetClick}
+            onDeleteClick={onDeleteClick}
+            fetcher={fetcher}
+          />
         </FormControl>
-        {/* </fieldset> */}
       </form>
-      <Dialog
-        // selectedValue={}
-        open={isAlertOpen}
-      >
-        <DialogContent>
-          Da li zaista želite da obrišete predmet {state.subject.subjectName} iz
-          baze?
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              fetcher.submit(
-                {},
-                {
-                  method: "delete",
-                  action: `/subjects/${state.subject.id}`,
-                }
-              );
-              nav("/subjects");
-            }}
-          >
-            Da
-          </Button>
-          <Button autoFocus onClick={() => setIsAlertOpen(false)}>
-            Ne
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };

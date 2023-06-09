@@ -11,6 +11,9 @@ import NewSubject from "./components/subject/NewSubject.jsx";
 import Teachers from "./components/teacher/Teachers.jsx";
 import Teacher from "./components/teacher/Teacher.jsx";
 import NewTeacher from "./components/teacher/NewTeacher.jsx";
+import { getResource } from "./utils/paths.js";
+
+const baseUrl = 'http://localhost:8080/api/v1';
 
 const router = createBrowserRouter([
   {
@@ -116,7 +119,7 @@ const router = createBrowserRouter([
           const teachers = await response3.json();
 
           const response4 = await fetch(
-            `http://localhost:8080/api/v1/students?grade=${subject.grade}`,
+            `http://localhost:8080/api/v1/students/grade/${subject.grade}`,
             {
               method: "GET",
               headers: {
@@ -236,6 +239,32 @@ const router = createBrowserRouter([
       {
         path: "/teachers/:id",
         element: <Teacher />,
+        loader: async ({params}) => {
+          const response = await getResource(`${baseUrl}/teachers/${params.id}`);
+          checkResponse(response);
+          const teacher = await response.json();
+          // console.log(`teacher ${params.id} ${JSON.stringify(teacher)}`);
+
+          const response2 = await getResource(`${baseUrl}/subjects/teacher/${params.id}`);
+          checkResponse(response2);
+          const subsByTeacher = await response2.json();
+          // console.log(`subjects by teacher ${params.id} ${JSON.stringify(subsByTeacher, null, 4)}`);
+
+          const response3 = await getResource(baseUrl + `/students/teacher/${params.id}`);
+          checkResponse(response3);
+          const studentsByTeacher = await response3.json();
+          console.log(`students by teacher ${params.id} ${JSON.stringify(studentsByTeacher, null, 4)}`);
+
+          const response4 = await getResource(baseUrl + `/subjects`);
+          checkResponse(response4);
+          const subjects = await response4.json();
+
+          const response5 = await getResource(baseUrl + "/students");
+          checkResponse(response5);
+          const students = await response5.json();
+
+          return [teacher, subsByTeacher, studentsByTeacher, subjects, students];
+        }
       },
       {
         path: "/teachers/new",

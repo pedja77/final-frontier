@@ -7,9 +7,12 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { NavLink } from 'react-router-dom';
 import { checkImageUrl } from '../../utils/paths';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { Avatar } from '@mui/material';
 
-const TeacherCard = ({teacher}) => {
-    console.log('TeacherCard teacher '+ JSON.stringify(teacher, null, 4))
+const TeacherCard = ({teacher}) => {  
+
     return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia

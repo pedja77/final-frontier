@@ -34,7 +34,7 @@ const TableTemplate = ({ props }) => {
               {props.tableHeaders.map((th, i) => (
                 <TableCell key={window.crypto.randomUUID()}>{th}</TableCell>
               ))}
-              {getUserRole() === "ROLE_ADMIN" && <TableCell>Akcija</TableCell>}
+              {getUserRole() === "ROLE_ADMIN" && <TableCell align="right">Akcija</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>

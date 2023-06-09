@@ -1,3 +1,5 @@
+import { getToken } from "./token";
+
 export const getDefaultPath = (role) => {
     
 } 
@@ -15,3 +17,10 @@ export const checkImageUrl = (url, callback) => {
     const complete = img.complete;
     return callback(complete);   
 }
+
+export const getResource = async (url) => await fetch(url, {
+    method: 'GET',
+    headers: {
+        Authorization: getToken()
+    }
+});
