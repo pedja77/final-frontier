@@ -6,6 +6,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { NavLink } from 'react-router-dom';
+import { checkImageUrl } from '../../utils/paths';
 
 const TeacherCard = ({teacher}) => {
     console.log('TeacherCard teacher '+ JSON.stringify(teacher, null, 4))
@@ -15,7 +16,9 @@ const TeacherCard = ({teacher}) => {
         component="img"
         alt="Image of the teacher"
         height="140"
-        image={`teacher_${teacher.id}.jpg`}
+        image={checkImageUrl(
+          `teacher_${teacher.id}.jpg`, (imageExists) => 
+            imageExists ?  `teacher_${teacher.id}.jpg` : "portrait_placeholder.jpeg")}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
