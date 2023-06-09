@@ -1,30 +1,20 @@
 import {
   Avatar,
   Box,
-  Button,
-  Collapse,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
   FormControl,
-  FormGroup,
   FormLabel,
-  MenuItem,
   TextField,
   Typography,
 } from "@mui/material";
 import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
-import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
-import { useState } from "react";
 import { getUserRole } from "../../utils/token";
-import { produce } from "immer";
 import EditButtons from "../lib/EditButtons";
 
-const subjectReducer = (draft, action) => {
+const teacherReducer = (draft, action) => {
   switch (action.type) {
     case "input_changed": {
       draft.teacher[action.name] = action.value;
@@ -50,8 +40,6 @@ const subjectReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.teacher = action.teacher;
-      //   draft.teacher.students = action.students;
-      //   draft.teacher.subjects = action.subjects;
       break;
     }
     default: {
@@ -63,32 +51,17 @@ const subjectReducer = (draft, action) => {
 const Teacher = () => {
   const [teacher, subjectsByTeacher, studentsByTeacher, subjects, students] =
     useLoaderData();
-
-  console.log(
-    `subjects by teacher ${teacher.id} ${JSON.stringify(
-      subjectsByTeacher,
-      null,
-      4
-    )}`
-  );
-
   const fetcher = useFetcher();
-
-  // const nav = useNavigate();
-  // const [isAlertOpen, setIsAlertOpen] = useState(false);
-
-  const [state, dispatch] = useImmerReducer(subjectReducer, {
+  const nav = useNavigate();
+  const [state, dispatch] = useImmerReducer(teacherReducer, {
     teacher: {
       ...teacher,
       subjects: subjectsByTeacher,
       students: studentsByTeacher,
     },
-    // teachersSubjects: structuredClone(subjectsByTeacher),
-    //   teachersStudents: structuredClone(studentsByTeacher),
     newSubject: null,
     newStudent: null,
   });
-  console.log("state.teacher " + JSON.stringify(state, null, 4));
 
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
@@ -152,6 +125,7 @@ const Teacher = () => {
       method: "put",
       action: `/teachers/${state.teacher.id}`,
     });
+    nav("/teachers");
   };
 
   const subjectsTableProps = {
@@ -175,27 +149,6 @@ const Teacher = () => {
     handleAddNewItem,
   };
 
-  const studentsTableProps = {
-    tableLabel: "Učenici",
-    tableHeaders: ["Id", "Ime", "Prezime", "Razred"],
-    tableData: state.teacher.students,
-    tdConfig: ["id", "firstName", "lastName", "grade"],
-    removeFn: handleRemoveItem,
-    collectionName: "students",
-  };
-
-  const studentsAddItemProps = {
-    itemName: "učenika",
-    newItemName: "newStudent",
-    newItem: state.newStudent,
-    options: students,
-    collection: "students",
-    forFilterOptions: state.teacher.students,
-    labelOptions: ["firstName", "lastName"],
-    handleSetNewOption,
-    handleAddNewItem,
-  };
-
   return (
     <Container
       sx={{
@@ -208,7 +161,6 @@ const Teacher = () => {
     >
       <Typography variant="h3">{`${state.teacher.firstName} ${state.teacher.lastName}`}</Typography>
       <Avatar
-        // alt={`${state.teacher.firstName} ${state.teacher.lastName}`}
         src={`../teacher_${state.teacher.id}.jpg`}
         sx={{ width: "8rem", height: "6rem" }}
       />
@@ -249,14 +201,10 @@ const Teacher = () => {
             </>
           ) : (
             <>
+              <Typography>Ime: {state.teacher.firstName}</Typography>
+              <Typography>Prezime: {state.teacher.lastName}</Typography>
               <Typography>
-                Naziv predmeta: {state.subject.subjectName}
-              </Typography>
-              <Typography>
-                Razred: {gradeToString.get(state.subject.grade)}
-              </Typography>
-              <Typography>
-                Nedeljni fond časova: {state.subject.weeklyFund}
+                Nedeljni fond časova: {state.teacher.weeklyClasses}
               </Typography>
             </>
           )}
@@ -266,11 +214,6 @@ const Teacher = () => {
             {getUserRole() === "ROLE_ADMIN" && (
               <AddItem props={subjectsAddItemProps} />
             )}
-
-            {/* <TableTemplate props={studentsTableProps} />
-              {getUserRole() === "ROLE_ADMIN" && (
-                <AddItem props={studentsAddItemProps} />
-              )} */}
           </Box>
           <EditButtons
             onSaveClick={onSaveClick}
