@@ -2,7 +2,7 @@ import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, FormGroup 
 import { useState } from "react";
 import { getUserRole } from "../../utils/token";
 
-const EditButtons = ({onResetClick, onSaveClick, onDeleteClick, fetcher}) => {
+const EditButtons = ({onResetClick, onSaveClick, onDeleteClick}) => {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
   return (
     <>

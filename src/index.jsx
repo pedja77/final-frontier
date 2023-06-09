@@ -11,7 +11,7 @@ import NewSubject from "./components/subject/NewSubject.jsx";
 import Teachers from "./components/teacher/Teachers.jsx";
 import Teacher from "./components/teacher/Teacher.jsx";
 import NewTeacher from "./components/teacher/NewTeacher.jsx";
-import { getResource } from "./utils/paths.js";
+import { getResource, putResource } from "./utils/paths.js";
 
 const baseUrl = 'http://localhost:8080/api/v1';
 
@@ -264,6 +264,18 @@ const router = createBrowserRouter([
           const students = await response5.json();
 
           return [teacher, subsByTeacher, studentsByTeacher, subjects, students];
+        },
+        action: async ({params, request}) => {
+          if (request.method === 'PUT') {
+            const data = Object.fromEntries(await request.formData());
+            data.subjects = JSON.parse(data.subjects);
+            data.students = JSON.parse(data.students);
+            const res = await putResource(baseUrl + `/teachers/${params.id}`, data);
+            checkResponse(res);
+            return res;
+          } else if (request.method === 'DELETE') {
+
+          }
         }
       },
       {

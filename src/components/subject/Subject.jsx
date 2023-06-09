@@ -62,7 +62,6 @@ const Subject = () => {
   const fetcher = useFetcher();
 
   const nav = useNavigate();
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const [state, dispatch] = useImmerReducer(subjectReducer, {
     subject: structuredClone(sub),
@@ -259,7 +258,6 @@ const Subject = () => {
             onSaveClick={onSaveClick}
             onResetClick={onResetClick}
             onDeleteClick={onDeleteClick}
-            fetcher={fetcher}
           />
         </FormControl>
       </form>

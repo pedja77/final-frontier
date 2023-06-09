@@ -24,3 +24,14 @@ export const getResource = async (url) => await fetch(url, {
         Authorization: getToken()
     }
 });
+
+export const putResource = async (url, payload) => 
+    await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: getToken(),
+      },
+      body: JSON.stringify(payload),
+    }
+  );
