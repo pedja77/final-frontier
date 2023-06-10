@@ -111,7 +111,7 @@ const Teacher = () => {
         action: `/teachers/${state.teacher.id}`,
       }
     );
-    nav("/subjects");
+    nav("/teachers");
   };
 
   const onSaveClick = async () => {

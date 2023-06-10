@@ -11,7 +11,7 @@ import NewSubject from "./components/subject/NewSubject.jsx";
 import Teachers from "./components/teacher/Teachers.jsx";
 import Teacher from "./components/teacher/Teacher.jsx";
 import NewTeacher from "./components/teacher/NewTeacher.jsx";
-import { getResource, putResource } from "./utils/paths.js";
+import { deleteResource, getResource, postResource, putResource } from "./utils/paths.js";
 
 const baseUrl = 'http://localhost:8080/api/v1';
 
@@ -206,8 +206,7 @@ const router = createBrowserRouter([
           const data = Object.fromEntries(await request.formData());
           data.teachers = JSON.parse(data.teachers);
           data.students = JSON.parse(data.students);
-          // console.log('request ' + JSON.stringify(data))
-          // console.log('params ' + JSON.stringify(params))
+
           const res = await fetch(`http://localhost:8080/api/v1/subjects`, {
             method: "POST",
             headers: {
@@ -274,13 +273,31 @@ const router = createBrowserRouter([
             checkResponse(res);
             return res;
           } else if (request.method === 'DELETE') {
-
+            console.log('delete teacher ' + params.id)
+            const res = deleteResource(baseUrl + `/users/${params.id}`);
+            console.log('delete response ' + res)
+            // checkResponse(res);
+            return res;
           }
         }
       },
       {
         path: "/teachers/new",
         element: <NewTeacher />,
+        loader: async () => {
+          const response = await getResource(baseUrl + '/subjects');
+          checkResponse(response);
+
+          return response;
+        },
+        action: async ({params, request}) => {
+          const data = Object.fromEntries(await request.formData());
+          data.subjects = JSON.parse(data.subjects);
+          const response = await postResource(baseUrl + "/users", data);
+          checkResponse(response);
+
+          return response;
+        }
       },
     ],
   },
