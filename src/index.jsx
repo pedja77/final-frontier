@@ -250,26 +250,26 @@ const router = createBrowserRouter([
           const subsByTeacher = await response2.json();
           // console.log(`subjects by teacher ${params.id} ${JSON.stringify(subsByTeacher, null, 4)}`);
 
-          const response3 = await getResource(baseUrl + `/students/teacher/${params.id}`);
-          checkResponse(response3);
-          const studentsByTeacher = await response3.json();
-          console.log(`students by teacher ${params.id} ${JSON.stringify(studentsByTeacher, null, 4)}`);
+          // const response3 = await getResource(baseUrl + `/students/teacher/${params.id}`);
+          // checkResponse(response3);
+          // const studentsByTeacher = await response3.json();
+          // console.log(`students by teacher ${params.id} ${JSON.stringify(studentsByTeacher, null, 4)}`);
 
           const response4 = await getResource(baseUrl + `/subjects`);
           checkResponse(response4);
           const subjects = await response4.json();
 
-          const response5 = await getResource(baseUrl + "/students");
-          checkResponse(response5);
-          const students = await response5.json();
+          // const response5 = await getResource(baseUrl + "/students");
+          // checkResponse(response5);
+          // const students = await response5.json();
 
-          return [teacher, subsByTeacher, studentsByTeacher, subjects, students];
+          return [teacher, subsByTeacher, subjects];
         },
         action: async ({params, request}) => {
           if (request.method === 'PUT') {
             const data = Object.fromEntries(await request.formData());
             data.subjects = JSON.parse(data.subjects);
-            data.students = JSON.parse(data.students);
+            // data.students = JSON.parse(data.students);
             const res = await putResource(baseUrl + `/teachers/${params.id}`, data);
             checkResponse(res);
             return res;

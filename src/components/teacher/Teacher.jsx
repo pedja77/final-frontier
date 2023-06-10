@@ -49,7 +49,7 @@ const teacherReducer = (draft, action) => {
 };
 
 const Teacher = () => {
-  const [teacher, subjectsByTeacher, studentsByTeacher, subjects, students] =
+  const [teacher, subjectsByTeacher, subjects] =
     useLoaderData();
   const fetcher = useFetcher();
   const nav = useNavigate();
@@ -57,7 +57,6 @@ const Teacher = () => {
     teacher: {
       ...teacher,
       subjects: subjectsByTeacher,
-      students: studentsByTeacher,
     },
     newSubject: null,
     newStudent: null,
@@ -101,7 +100,6 @@ const Teacher = () => {
       teacher: {
         ...teacher,
         subjects: subjectsByTeacher,
-        students: studentsByTeacher,
       },
     });
 
@@ -119,7 +117,6 @@ const Teacher = () => {
   const onSaveClick = async () => {
     console.log(JSON.stringify(state.teacher, null, 4));
     let s = structuredClone(state.teacher);
-    s.students = JSON.stringify(state.teacher.students);
     s.subjects = JSON.stringify(state.teacher.subjects);
     fetcher.submit(s, {
       method: "put",
@@ -162,7 +159,7 @@ const Teacher = () => {
       <Typography variant="h3">{`${state.teacher.firstName} ${state.teacher.lastName}`}</Typography>
       <Avatar
         src={`../teacher_${state.teacher.id}.jpg`}
-        sx={{ width: "8rem", height: "6rem" }}
+        sx={{ width: "8rem", height: "6rem"}}
       />
       <form>
         <FormControl

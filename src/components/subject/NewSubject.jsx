@@ -136,11 +136,6 @@ const NewSubject = () => {
     });
   };
 
-  /*
-   *    TODO:
-   *       - kad se promeni razred, azurirati ucenike u autocompletu
-   *
-   */
   const teachersTableProps = {
     tableLabel: "Nastavnici",
     tableHeaders: ["Id", "Ime", "Prezime"],
@@ -151,7 +146,7 @@ const NewSubject = () => {
   };
 
   const teachersAddItemProps = {
-    itemName: "nastavnik",
+    itemName: "nastavnika",
     newItemName: "newTeacher",
     newItem: state.newTeacher,
     options: teachers,
@@ -172,7 +167,7 @@ const NewSubject = () => {
   };
 
   const studentsAddItemProps = {
-    itemName: "učenik",
+    itemName: "učenika",
     newItemName: "newStudent",
     newItem: state.newStudent,
     options: state.studentsByGrade,
