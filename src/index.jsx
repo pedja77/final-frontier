@@ -11,9 +11,14 @@ import NewSubject from "./components/subject/NewSubject.jsx";
 import Teachers from "./components/teacher/Teachers.jsx";
 import Teacher from "./components/teacher/Teacher.jsx";
 import NewTeacher from "./components/teacher/NewTeacher.jsx";
-import { deleteResource, getResource, postResource, putResource } from "./utils/paths.js";
+import {
+  deleteResource,
+  getResource,
+  postResource,
+  putResource,
+} from "./utils/paths.js";
 
-const baseUrl = 'http://localhost:8080/api/v1';
+const baseUrl = "http://localhost:8080/api/v1";
 
 const router = createBrowserRouter([
   {
@@ -84,7 +89,11 @@ const router = createBrowserRouter([
         path: "subjects/:id",
         loader: async ({ params }) => {
           console.log("params " + JSON.stringify(params));
-          const user = checkLogin(["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER"]);
+          const user = checkLogin([
+            "ROLE_ADMIN",
+            "ROLE_STUDENT",
+            "ROLE_TEACHER",
+          ]);
           const response = await fetch(
             `http://localhost:8080/api/v1/subjects/${params.id}`,
             {
@@ -134,7 +143,7 @@ const router = createBrowserRouter([
         },
         action: async ({ params, request }) => {
           if (request.method === "PUT") {
-            console.log("put subject action params.id " + params.id)
+            console.log("put subject action params.id " + params.id);
             const data = Object.fromEntries(await request.formData());
             data.teachers = JSON.parse(data.teachers);
             data.students = JSON.parse(data.students);
@@ -151,25 +160,28 @@ const router = createBrowserRouter([
             );
             checkResponse(res);
             return res;
-          } else if (request.method === 'DELETE') {
-            console.log("delete subject action params.id " + params.id)
-            const res = await fetch(`http://localhost:8080/api/v1/subjects/${params.id}`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: getToken(),
+          } else if (request.method === "DELETE") {
+            console.log("delete subject action params.id " + params.id);
+            const res = await fetch(
+              `http://localhost:8080/api/v1/subjects/${params.id}`,
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: getToken(),
+                },
               }
-            });
+            );
             checkResponse(res);
             return res;
           }
-      },
+        },
       },
       {
         path: "/subjects/new",
         element: <NewSubject />,
         loader: async ({ params }) => {
+          const user = checkLogin(["ROLE_ADMIN"]);
           const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
             method: "GET",
             headers: {
@@ -223,28 +235,45 @@ const router = createBrowserRouter([
         path: "/teachers",
         element: <Teachers />,
         loader: async () => {
-          const response = await fetch("http://localhost:8080/api/v1/teachers", {
-            method: 'GET',
-            headers: {
-              Authorization: getToken()
+          const user = checkLogin([
+            "ROLE_ADMIN",
+            "ROLE_STUDENT",
+            "ROLE_TEACHER",
+          ]);
+          const response = await fetch(
+            "http://localhost:8080/api/v1/teachers",
+            {
+              method: "GET",
+              headers: {
+                Authorization: getToken(),
+              },
             }
-          });
+          );
           checkResponse(response);
           const teachers = await response.json();
 
           return teachers;
-        }
+        },
       },
       {
         path: "/teachers/:id",
         element: <Teacher />,
-        loader: async ({params}) => {
-          const response = await getResource(`${baseUrl}/teachers/${params.id}`);
+        loader: async ({ params }) => {
+          const user = checkLogin([
+            "ROLE_ADMIN",
+            "ROLE_STUDENT",
+            "ROLE_TEACHER",
+          ]);
+          const response = await getResource(
+            `${baseUrl}/teachers/${params.id}`
+          );
           checkResponse(response);
           const teacher = await response.json();
           // console.log(`teacher ${params.id} ${JSON.stringify(teacher)}`);
 
-          const response2 = await getResource(`${baseUrl}/subjects/teacher/${params.id}`);
+          const response2 = await getResource(
+            `${baseUrl}/subjects/teacher/${params.id}`
+          );
           checkResponse(response2);
           const subsByTeacher = await response2.json();
           // console.log(`subjects by teacher ${params.id} ${JSON.stringify(subsByTeacher, null, 4)}`);
@@ -264,40 +293,44 @@ const router = createBrowserRouter([
 
           return [teacher, subsByTeacher, subjects];
         },
-        action: async ({params, request}) => {
-          if (request.method === 'PUT') {
+        action: async ({ params, request }) => {
+          if (request.method === "PUT") {
             const data = Object.fromEntries(await request.formData());
             data.subjects = JSON.parse(data.subjects);
             // data.students = JSON.parse(data.students);
-            const res = await putResource(baseUrl + `/teachers/${params.id}`, data);
+            const res = await putResource(
+              baseUrl + `/teachers/${params.id}`,
+              data
+            );
             checkResponse(res);
             return res;
-          } else if (request.method === 'DELETE') {
-            console.log('delete teacher ' + params.id)
+          } else if (request.method === "DELETE") {
+            console.log("delete teacher " + params.id);
             const res = deleteResource(baseUrl + `/users/${params.id}`);
-            console.log('delete response ' + res)
+            console.log("delete response " + res);
             // checkResponse(res);
             return res;
           }
-        }
+        },
       },
       {
         path: "/teachers/new",
         element: <NewTeacher />,
         loader: async () => {
-          const response = await getResource(baseUrl + '/subjects');
+          const user = checkLogin(["ROLE_ADMIN"]);
+          const response = await getResource(baseUrl + "/subjects");
           checkResponse(response);
 
           return response;
         },
-        action: async ({params, request}) => {
+        action: async ({ params, request }) => {
           const data = Object.fromEntries(await request.formData());
           data.subjects = JSON.parse(data.subjects);
           const response = await postResource(baseUrl + "/users", data);
           checkResponse(response);
 
           return response;
-        }
+        },
       },
     ],
   },

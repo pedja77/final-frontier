@@ -37,9 +37,9 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useLogin } from "./hooks/customHooks";
-import { PasswordTwoTone } from "@mui/icons-material";
 import LoginControl from "./components/LoginControl";
 import Welcome from "./components/Welcome";
+
 // import { ThemeProvider } from 'styled-components';
 /*
 Ova komponenta predstavlja 'pocetnu stranicu' za nasu aplikaciju posto smo definisali da ce njen sadrzaj da se prikaze kada pokrenom aplikaciju (path='/'). Na ovoj stranici ce biti prikazan navbar sa leve strane i on ce uvek da bude prikazani, nece se menjati kada izaberemo neku opciju tj uvek ce biti prisutan na ekranu. Pored navbara ostatak prostora ce zauzimati kontrola koja se zove <Outlet> i ona sluzi da se prikazuje sadrzaj u zavisnosti od rute na kojoj se nalazimo, a rute smo definisali u children atributu (ugnjezdene rute). 
@@ -154,7 +154,7 @@ function App() {
               >
                 {openDrawer ? <Close /> : <MenuIcon />}
               </IconButton>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1}}>
                 eDnevnik
               </Typography>
               <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>

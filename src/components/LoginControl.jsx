@@ -26,6 +26,7 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
 
   const handleClose = () => {
     setOpen(false);
+    setError(false);
   };
   console.log("paths def/safe before handle " + defaultPath + ";" + safePath)
   
@@ -67,8 +68,9 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
             Molimo unesite korisničko ime i lozinku.
           </DialogContentText>
           <TextField
-            autoFocus={true}
-            focused={true}
+            autoFocus // ne radi zapravo nista, nema promene bez obzira da li je aktivan ili zakomentarisan
+            //inputRef={(i) => i && i.focus()}
+            focused
             id="username"
             label="Korisničko ime"
             type="text"

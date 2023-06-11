@@ -160,7 +160,9 @@ const Teacher = () => {
       <Avatar
         src={`../teacher_${state.teacher.id}.jpg`}
         sx={{ width: "8rem", height: "6rem"}}
-      />
+      >
+        <img src="../avatar.png" style={{ width: "8rem", height: "6rem"}}/>
+      </Avatar>
       <form>
         <FormControl
           sx={{
