@@ -1,6 +1,5 @@
-const validateText = (text, r, minLenght = 3, maxLength = 30) => {
-  const re = new RegExp(r);
-  return re.test(text) && text.length >= minLenght && text.lenght <= maxLength;
+const validateText = (text, re, minLength, maxLength) => {
+  return re.test(text) && (text.length >= minLength) && (text.length <= maxLength);
 };
 
 const validateNumber = (number, max, min = 0) => {
@@ -9,7 +8,7 @@ const validateNumber = (number, max, min = 0) => {
 
 // Jedna reč, samo slovni karakteri uključujući kuke i kvačke
 export const validateFirstName = (firstName) => {
-  const isValid = validateText(firstName, /^[a-zšđčćž]+$/giu);
+  const isValid = validateText(firstName, /^[a-zšđčćž]+$/giu, 2, 30);
   return {
     valid: isValid,
     cause: isValid ? 'Ime' : 'Ime mora da ima od 2 do 30 karaktera, samo alfa karakteri' 
@@ -17,7 +16,7 @@ export const validateFirstName = (firstName) => {
 };
 
 export const validateLastName = (lastName) => {
-  const isValid = validateText(lastName, /^[a-zšđčćž]+$/giu);
+  const isValid = validateText(lastName, /^[a-zšđčćž]+$/giu, 2, 30);
   return {
     valid: isValid,
     cause: isValid ? 'Prezime' : 'Prezime mora da ima od 2 do 30 karaktera, samo alfa karakteri'
@@ -60,15 +59,24 @@ export const validateConfirmedPassword = (p, cp) => {
     const isValid = p === cp;
     return {
       valid: isValid,
-      cause: isValid ? 'Potvrda lozinke' : 'Potvrđena loyzinka mora biti jednaka lozinci'
+      cause: isValid ? 'Potvrda lozinke' : 'Potvrđena lozinka mora biti jednaka lozinci'
     }
 };
 
 // String može da sadrži više reči, samo slovni karakteri, može space ili više na kraju
 export const validateSubjectName = subjectName => {
-    const isValid = validateText(subjectName, /^([a-zšđčćž])+( [a-zšđčćž]*)*$/gui);
+    const isValid = validateText(subjectName, /^([a-zšđčćž])+( [a-zšđčćž]*)*$/gui, 3, 30);
     return {
       valid: isValid,
       cause: isValid ? 'Naziv predmeta' : 'Naziv predmeta mora biti od 3 do 30 karaktera dugačak, može sadržati više reči razdvojenih razmakom'
     }
 }
+
+export const isFormValid = (errors, attr) => {
+  for (let k of attr) {
+    if(!errors[k].valid)
+      return false;
+  }
+  return true;
+};
+

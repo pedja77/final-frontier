@@ -1,12 +1,16 @@
 import { TextField } from "@mui/material";
 
-const ValidatedTextField = ({id, state, value, dispatch, generateOnChanged}) => {        
+const ValidatedTextField = ({label, type, id, state, value, dispatch, generateOnChanged}) => {        
     return <TextField 
-                    helperText={state.errors[id].cause} 
+                    label={label}
+                    type={type}
+                    helperText={!state.errors[id].valid ? state.errors[id].cause : " "} 
                     error={!state.errors[id].valid} 
                     id={id} 
+                    name={id}
                     value={value} 
                     onChange={generateOnChanged} 
+                    sc={{paddingBottom: '2rem'}}
                     onBlur={e => {
                         //StateIndex[id][1](ValidatorIndex[id](currentBook[id]));
                         dispatch({

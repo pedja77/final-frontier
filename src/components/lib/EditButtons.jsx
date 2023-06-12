@@ -2,7 +2,7 @@ import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, FormGroup 
 import { useState } from "react";
 import { getUserRole } from "../../utils/token";
 
-const EditButtons = ({onResetClick, onSaveClick, onDeleteClick}) => {
+const EditButtons = ({onResetClick, onSaveClick, onDeleteClick, isFormValid}) => {
     const [isAlertOpen, setIsAlertOpen] = useState(false);
   return (
     <>
@@ -27,6 +27,7 @@ const EditButtons = ({onResetClick, onSaveClick, onDeleteClick}) => {
               <Button
                 variant="outlined"
                 onClick={onSaveClick}
+                disabled={!isFormValid}
               >
                 Sačuvaj
               </Button>

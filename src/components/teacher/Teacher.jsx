@@ -13,6 +13,19 @@ import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
 import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
+import {
+  isFormValid,
+  validateFirstName,
+  validateLastName,
+  validateWeeklyClasses,
+} from "../../utils/validation";
+import ValidatedTextField from "../lib/ValidatedTextField";
+
+const ValidationIndex = {
+  firstName: validateFirstName,
+  lastName: validateLastName,
+  weeklyClasses: validateWeeklyClasses,
+};
 
 const teacherReducer = (draft, action) => {
   switch (action.type) {
@@ -40,17 +53,30 @@ const teacherReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.teacher = action.teacher;
+      for (const k in ValidationIndex) {
+        state.errors[k] = ValidationIndex[k](state.teacher[k]);
+      }
+      break;
+    }
+    case "validate": {
+      draft.errors[action.key] = ValidationIndex[action.key](
+        draft.teacher[action.key]
+      );
+      draft.isFormValid = isFormValid(draft.errors, [
+        "firstName",
+        "lastName",
+        "weeklyClasses",
+      ]);
       break;
     }
     default: {
-      throwError("Invalid action: ", action.type);
+      throw ("Invalid action: ", action.type);
     }
   }
 };
 
 const Teacher = () => {
-  const [teacher, subjectsByTeacher, subjects] =
-    useLoaderData();
+  const [teacher, subjectsByTeacher, subjects] = useLoaderData();
   const fetcher = useFetcher();
   const nav = useNavigate();
   const [state, dispatch] = useImmerReducer(teacherReducer, {
@@ -58,8 +84,14 @@ const Teacher = () => {
       ...teacher,
       subjects: subjectsByTeacher,
     },
+    errors: {
+      firstName: validateFirstName(teacher.firstName),
+      lastName: validateLastName(teacher.lastName),
+      weeklyClasses: validateWeeklyClasses(teacher.weeklyClasses),
+    },
     newSubject: null,
     newStudent: null,
+    isFormValid: true,
   });
 
   const handleRemoveItem = (e, item, collection) => {
@@ -146,6 +178,12 @@ const Teacher = () => {
     handleAddNewItem,
   };
 
+  const validationContext = {
+    dispatch,
+    generateOnChanged: handleInputChanged,
+    state,
+  };
+
   return (
     <Container
       sx={{
@@ -159,9 +197,9 @@ const Teacher = () => {
       <Typography variant="h3">{`${state.teacher.firstName} ${state.teacher.lastName}`}</Typography>
       <Avatar
         src={`../teacher_${state.teacher.id}.jpg`}
-        sx={{ width: "8rem", height: "6rem"}}
+        sx={{ width: "8rem", height: "6rem" }}
       >
-        <img src="../avatar.png" style={{ width: "8rem", height: "6rem"}}/>
+        <img src="../avatar.png" style={{ width: "8rem", height: "6rem" }} />
       </Avatar>
       <form>
         <FormControl
@@ -174,26 +212,48 @@ const Teacher = () => {
           <FormLabel>id: {state.teacher.id}</FormLabel>
           {getUserRole() === "ROLE_ADMIN" ? (
             <>
-              <TextField
+              <ValidatedTextField
+                label={"Ime"}
+                type={"text"}
+                id={"firstName"}
+                value={state.teacher.firstName}
+                {...validationContext}
+              />
+              {/* <TextField
                 label="Ime"
                 name="firstName"
                 value={state.teacher.firstName}
                 sx={{ marginBottom: 2 }}
                 onChange={handleInputChanged}
+              /> */}
+              <ValidatedTextField
+                label="Prezime"
+                type={"text"}
+                id={"lastName"}
+                value={state.teacher.lastName}
+                {...validationContext}
               />
-              <TextField
+              {/* <TextField
                 label="Prezime"
                 name="lastName"
                 value={state.teacher.lastName}
                 sx={{ marginBottom: 2 }}
                 onChange={handleInputChanged}
-              />
+              /> */}
+              {/* <ValidatedTextField
+                label={"Nedeljni fond časova"}
+                type="number"
+                id={"firstName"}
+                value={state.teacher.weeklyClasses}
+                {...validationContext}
+                inputProps={{ min: 0 }}
+              /> */}
               <TextField
                 label="Nedeljni fond časova"
                 name="weeklyClasses"
                 type="number"
                 value={state.teacher.weeklyClasses}
-                inputProps={{ min: 0 }}
+                inputProps={{ min: 0, max: 40 }}
                 sx={{ marginBottom: 2 }}
                 onChange={handleInputChanged}
               />
@@ -218,6 +278,7 @@ const Teacher = () => {
             onSaveClick={onSaveClick}
             onResetClick={onResetClick}
             onDeleteClick={onDeleteClick}
+            isFormValid={state.isFormValid}
           />
         </FormControl>
       </form>
