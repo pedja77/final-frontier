@@ -54,8 +54,9 @@ const teacherReducer = (draft, action) => {
     case "reset_form": {
       draft.teacher = action.teacher;
       for (const k in ValidationIndex) {
-        state.errors[k] = ValidationIndex[k](state.teacher[k]);
+        draft.errors[k] = ValidationIndex[k](draft.teacher[k]);
       }
+      draft.isFormValid = true;
       break;
     }
     case "validate": {
@@ -219,13 +220,6 @@ const Teacher = () => {
                 value={state.teacher.firstName}
                 {...validationContext}
               />
-              {/* <TextField
-                label="Ime"
-                name="firstName"
-                value={state.teacher.firstName}
-                sx={{ marginBottom: 2 }}
-                onChange={handleInputChanged}
-              /> */}
               <ValidatedTextField
                 label="Prezime"
                 type={"text"}
@@ -233,22 +227,16 @@ const Teacher = () => {
                 value={state.teacher.lastName}
                 {...validationContext}
               />
-              {/* <TextField
-                label="Prezime"
-                name="lastName"
-                value={state.teacher.lastName}
-                sx={{ marginBottom: 2 }}
-                onChange={handleInputChanged}
-              /> */}
-              {/* <ValidatedTextField
+              <ValidatedTextField
                 label={"Nedeljni fond časova"}
-                type="number"
-                id={"firstName"}
+                type={"number"}
+                id={"weeklyClasses"}
                 value={state.teacher.weeklyClasses}
+                inputProps={{ min: 0, max: 40 }}
                 {...validationContext}
-                inputProps={{ min: 0 }}
-              /> */}
-              <TextField
+                required
+              />
+              {/* <TextField
                 label="Nedeljni fond časova"
                 name="weeklyClasses"
                 type="number"
@@ -256,7 +244,7 @@ const Teacher = () => {
                 inputProps={{ min: 0, max: 40 }}
                 sx={{ marginBottom: 2 }}
                 onChange={handleInputChanged}
-              />
+              /> */}
             </>
           ) : (
             <>

@@ -13,12 +13,31 @@ import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getToken } from "../../utils/token";
 import { checkResponse } from "../../utils/responseChecker";
 import AddNewButtons from "../lib/AddNewButtons";
+import {
+  isFormValid,
+  validateConfirmedPassword,
+  validateFirstName,
+  validateLastName,
+  validatePassword,
+  validateUsername,
+  validateWeeklyClasses,
+} from "../../utils/validation";
+import ValidatedTextField from "../lib/ValidatedTextField";
 
-const subjectReducer = (draft, action) => {
+const ValidationIndex = {
+  firstName: validateFirstName,
+  lastName: validateLastName,
+  weeklyClasses: validateWeeklyClasses,
+  username: validateUsername,
+  password: validatePassword,
+  confirmedPassword: validateConfirmedPassword,
+};
+
+const teacherReducer = (draft, action) => {
   switch (action.type) {
     case "input_changed": {
       draft.teacher[action.name] = action.value;
@@ -46,6 +65,34 @@ const subjectReducer = (draft, action) => {
       draft.teacher = action.teacher;
       break;
     }
+    case "validate": {
+      if (action.key === "confirmedPassword") {
+        draft.errors[action.key] = ValidationIndex[action.key](
+          draft.teacher[action.key],
+          draft.teacher.password
+        );
+      } else if (action.key === "username") { 
+        console.log(draft.usernames)
+        draft.errors[action.key] = ValidationIndex[action.key](
+          draft.teacher[action.key],
+          draft.usernames
+        );
+      } else {
+        draft.errors[action.key] = ValidationIndex[action.key](
+          draft.teacher[action.key]
+        );
+      }
+      draft.isFormValid = isFormValid(draft.errors, [
+        "firstName",
+        "lastName",
+        "weeklyClasses",
+        "username",
+        "password",
+        "confirmedPassword",
+      ]);
+      console.log('isFormValid from reducer ', draft.isFormValid, JSON.stringify(draft.errors, null, 4))
+      break;
+    }
     default: {
       throwError("Invalid action: ", action.type);
     }
@@ -53,22 +100,33 @@ const subjectReducer = (draft, action) => {
 };
 
 const NewTeacher = () => {
-  const subjects = useLoaderData();
+  const [subjects, users] = useLoaderData();
 
   const fetcher = useFetcher();
   const nav = useNavigate();
-  const [state, dispatch] = useImmerReducer(subjectReducer, {
-    teacher: {
-      firstName: "",
-      lastName: "",
-      weeklyClasses: "",
-      username: "",
-      password: "",
-      confirmedPassword: "",
-      role: "ROLE_TEACHER",
-      subjects: [],
+  const [newTeacher, setNewTeacher] = useState({
+    firstName: "",
+    lastName: "",
+    weeklyClasses: "",
+    username: "",
+    password: "",
+    confirmedPassword: "",
+    role: "ROLE_TEACHER",
+    subjects: [],
+  });
+  const [state, dispatch] = useImmerReducer(teacherReducer, {
+    teacher: structuredClone(newTeacher),
+    errors: {
+      firstName: { valid: true, cause: "Ime" },
+      lastName: { valid: true, cause: "Prezime" },
+      weeklyClasses: { valid: true, cause: "Nedeljni fond" },
+      username: { valid: true, cause: "Korisničko ime" },
+      password: { valid: true, cause: "Lozinka" },
+      confirmedPassword: { valid: true, cause: "Potvrdjena lozinka" },
     },
     newSubject: null,
+    isFormValid: false,
+    usernames: users.map(u => u.username),
   });
 
   const handleRemoveItem = (e, item, collection) => {
@@ -149,6 +207,12 @@ const NewTeacher = () => {
     handleAddNewItem,
   };
 
+  const validationContext = {
+    dispatch,
+    generateOnChanged: handleInputChanged,
+    state,
+  };
+
   return (
     <Container
       sx={{
@@ -168,41 +232,84 @@ const NewTeacher = () => {
             justifyContent: "space-between",
           }}
         >
-          <TextField
+          <ValidatedTextField
+            label={"Ime"}
+            type={"text"}
+            id={"firstName"}
+            value={state.teacher.firstName}
+            {...validationContext}
+            required
+          />
+          {/* <TextField
             label="Ime"
             name="firstName"
             value={state.teacher.firstName}
             sx={{ marginBottom: 2 }}
             onChange={handleInputChanged}
             required
+          /> */}
+          <ValidatedTextField
+            label={"Prezime"}
+            type={"text"}
+            id={"lastName"}
+            value={state.teacher.lastName}
+            {...validationContext}
+            required
           />
-          <TextField
+          {/* <TextField
             label="Prezime"
             name="lastName"
             value={state.teacher.lastName}
             sx={{ marginBottom: 2 }}
             onChange={handleInputChanged}
             required
+          /> */}
+          <ValidatedTextField
+            label={"Nedeljni fond časova"}
+            type={"number"}
+            id={"weeklyClasses"}
+            value={state.teacher.weeklyClasses}
+            inputProps={{ min: 0, max: 40 }}
+            {...validationContext}
+            required
           />
-          <TextField
+          {/* <TextField
             label="Nedeljni fond časova"
             name="weeklyClasses"
+            id="weeklyClasses"
             type="number"
             value={state.teacher.weeklyClasses}
-            inputProps={{ min: 0 }}
+            inputProps={{ min: 0, max: 40 }}
             sx={{ marginBottom: 2 }}
             onChange={handleInputChanged}
             required
+            onBlur={() => dispatch({type: 'validate', key: id})}
+          /> */}
+          <ValidatedTextField
+            label={"Korisničko ime"}
+            type={"text"}
+            id={"username"}
+            value={state.teacher.username}
+            {...validationContext}
+            required
           />
-          <TextField
+          {/* <TextField
             value={state.teacher.username}
             label="Novo korisničko ime"
             name="username"
             sx={{ marginBottom: 2 }}
             onChange={handleInputChanged}
             required
+          /> */}
+          <ValidatedTextField
+            label={"Lozinka"}
+            type={"password"}
+            id={"password"}
+            value={state.teacher.password}
+            {...validationContext}
+            required
           />
-          <TextField
+          {/* <TextField
             value={state.teacher.password}
             label="Lozinka"
             name="password"
@@ -210,8 +317,16 @@ const NewTeacher = () => {
             onChange={handleInputChanged}
             required
             type="password"
+          /> */}
+          <ValidatedTextField
+            label={"Potvrdi lozinku"}
+            type={"password"}
+            id={"confirmedPassword"}
+            value={state.teacher.confirmedPassword}
+            {...validationContext}
+            required
           />
-          <TextField
+          {/* <TextField
             value={state.teacher.confirmedPassword}
             label="Potvrdi lozinku"
             name="confirmedPassword"
@@ -219,7 +334,7 @@ const NewTeacher = () => {
             onChange={handleInputChanged}
             required
             type="password"
-          />
+          /> */}
 
           <Box sx={{ marginY: 2 }}>
             <TableTemplate props={subjectsTableProps} />
@@ -228,6 +343,7 @@ const NewTeacher = () => {
           <AddNewButtons
             onResetClick={onResetClick}
             onSaveClick={onSaveClick}
+            isFormValid={state.isFormValid}
           />
         </FormControl>
       </form>

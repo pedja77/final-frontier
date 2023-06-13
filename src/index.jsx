@@ -320,8 +320,13 @@ const router = createBrowserRouter([
           const user = checkLogin(["ROLE_ADMIN"]);
           const response = await getResource(baseUrl + "/subjects");
           checkResponse(response);
+          const subjects = await response.json();
 
-          return response;
+          const response2 = await getResource(baseUrl + '/users');
+          checkResponse(response2);
+          const users = (await response2.json());
+
+          return [subjects, users];
         },
         action: async ({ params, request }) => {
           const data = Object.fromEntries(await request.formData());
