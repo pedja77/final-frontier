@@ -6,6 +6,16 @@ const validateNumber = (number, max, min = 0) => {
   return number >= min && number <= max;
 };
 
+export const validateGrade = (grade) => {
+  const isValid = validateNumber(grade, 8, 1);
+  return {
+    valid: isValid,
+    cause: isValid
+      ? "Razred"
+      : "Razred mora biti izabran i imati vrednost od 1 do 8."
+  }
+}
+
 // Jedna reč, samo slovni karakteri uključujući kuke i kvačke
 export const validateFirstName = (firstName) => {
   const isValid = validateText(firstName, /^[a-zšđčćž]+$/giu, 2, 30);
@@ -100,7 +110,11 @@ export const validateSubjectName = (subjectName) => {
 
 export const isFormValid = (errors, attr) => {
   for (let k of attr) {
-    if (!errors[k].valid) return false;
+    if(errors[k] !== undefined) {
+      if (!errors[k].valid) return false;
+    } else {
+      return false;
+    }
   }
   return true;
 };

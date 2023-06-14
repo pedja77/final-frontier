@@ -63,6 +63,7 @@ const teacherReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.teacher = action.teacher;
+      draft.errors = errorsInit;
       break;
     }
     case "validate": {
@@ -71,8 +72,8 @@ const teacherReducer = (draft, action) => {
           draft.teacher[action.key],
           draft.teacher.password
         );
-      } else if (action.key === "username") { 
-        console.log(draft.usernames)
+      } else if (action.key === "username") {
+        console.log(draft.usernames);
         draft.errors[action.key] = ValidationIndex[action.key](
           draft.teacher[action.key],
           draft.usernames
@@ -90,7 +91,11 @@ const teacherReducer = (draft, action) => {
         "password",
         "confirmedPassword",
       ]);
-      console.log('isFormValid from reducer ', draft.isFormValid, JSON.stringify(draft.errors, null, 4))
+      console.log(
+        "isFormValid from reducer ",
+        draft.isFormValid,
+        JSON.stringify(draft.errors, null, 4)
+      );
       break;
     }
     default: {
@@ -98,6 +103,15 @@ const teacherReducer = (draft, action) => {
     }
   }
 };
+
+// const errorsInit = {
+//   firstName: { valid: true, cause: "Ime" },
+//   lastName: { valid: true, cause: "Prezime" },
+//   weeklyClasses: { valid: true, cause: "Nedeljni fond" },
+//   username: { valid: true, cause: "Korisničko ime" },
+//   password: { valid: true, cause: "Lozinka" },
+//   confirmedPassword: { valid: true, cause: "Potvrdjena lozinka" },
+// };
 
 const NewTeacher = () => {
   const [subjects, users] = useLoaderData();
@@ -116,17 +130,10 @@ const NewTeacher = () => {
   });
   const [state, dispatch] = useImmerReducer(teacherReducer, {
     teacher: structuredClone(newTeacher),
-    errors: {
-      firstName: { valid: true, cause: "Ime" },
-      lastName: { valid: true, cause: "Prezime" },
-      weeklyClasses: { valid: true, cause: "Nedeljni fond" },
-      username: { valid: true, cause: "Korisničko ime" },
-      password: { valid: true, cause: "Lozinka" },
-      confirmedPassword: { valid: true, cause: "Potvrdjena lozinka" },
-    },
+    errors: {},
     newSubject: null,
     isFormValid: false,
-    usernames: users.map(u => u.username),
+    usernames: users.map((u) => u.username),
   });
 
   const handleRemoveItem = (e, item, collection) => {
@@ -174,16 +181,7 @@ const NewTeacher = () => {
   const onResetClick = () =>
     dispatch({
       type: "reset_form",
-      teacher: {
-        firstName: "",
-        lastName: "",
-        weeklyClasses: "",
-        username: "",
-        password: "",
-        confirmedPassword: "",
-        role: "ROLE_TEACHER",
-        subjects: [],
-      },
+      teacher: structuredClone(newTeacher),
     });
 
   const subjectsTableProps = {

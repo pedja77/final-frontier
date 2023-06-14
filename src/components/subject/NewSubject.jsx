@@ -2,9 +2,11 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   FormControl,
   FormGroup,
   MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -16,6 +18,20 @@ import AddItem from "../lib/AddItem";
 import { useEffect } from "react";
 import { getToken } from "../../utils/token";
 import { checkResponse } from "../../utils/responseChecker";
+import {
+  isFormValid,
+  validateGrade,
+  validateSubjectName,
+  validateWeeklyFund,
+} from "../../utils/validation";
+import ValidatedTextField from "../lib/ValidatedTextField";
+import AddNewButtons from "../lib/AddNewButtons";
+
+const ValidationIndex = {
+  subjectName: validateSubjectName,
+  weeklyFund: validateWeeklyFund,
+  grade: validateGrade,
+};
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -50,6 +66,17 @@ const subjectReducer = (draft, action) => {
       draft.subject.students = [];
       break;
     }
+    case "validate": {
+      draft.errors[action.key] = ValidationIndex[action.key](
+        draft.subject[action.key]
+      );
+      draft.isFormValid = isFormValid(draft.errors, [
+        "subjectName",
+        "weeklyFund",
+        "grade"
+      ]);
+      break;
+    }
     default: {
       throwError("Invalid action: ", action.type);
     }
@@ -65,22 +92,23 @@ const NewSubject = () => {
     subject: {
       subjectName: "",
       weeklyFund: "",
-      grade: "",
+      grade: 0,
       teachers: [],
       students: [],
     },
+    errors: {},
     newTeacher: null,
     newStudent: null,
-    studentsByGrade: [],
+    studentsByGrade: [], 
+    isFormValid: false,
   });
 
   useEffect(() => {
     let ignore = false;
     const getData = async () => {
+      console.log("fromEffect", state.subject.grade);
       const response = await fetch(
-        `http://localhost:8080/api/v1/students?grade=${
-          state.subject.grade || 0
-        }`,
+        `http://localhost:8080/api/v1/students/grade/${state.subject.grade}`,
         {
           method: "GET",
           headers: {
@@ -88,10 +116,10 @@ const NewSubject = () => {
           },
         }
       );
-      checkResponse(response);
+      // checkResponse(response);
       if (!ignore) {
         const data = await response.json();
-        console.log("students from effect " + JSON.stringify(data));
+        console.log("students from effect ", data.length);
         dispatch({
           type: "students_by_grade_changed",
           students: data,
@@ -101,8 +129,6 @@ const NewSubject = () => {
     getData();
     return () => (ignore = true);
   }, [state.subject.grade]);
-
-  console.log('fetcher data new subject ' + JSON.stringify(fetcher.data));
 
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
@@ -133,6 +159,29 @@ const NewSubject = () => {
       type: "input_changed",
       value: e.target.value,
       name: e.target.name,
+    });
+  };
+
+  const onResetClick = () =>
+    dispatch({
+      type: "reset_form",
+      subject: {
+        subjectName: "",
+        weeklyFund: "",
+        grade: 0,
+        teachers: [],
+        students: [],
+      },
+    });
+
+  const onSaveClick = () => {
+    // console.log(JSON.stringify(state.subject, null, 4));
+    let s = structuredClone(state.subject);
+    s.students = JSON.stringify(state.subject.students);
+    s.teachers = JSON.stringify(state.subject.teachers);
+    fetcher.submit(s, {
+      method: "post",
+      action: `/subjects/new`,
     });
   };
 
@@ -178,6 +227,12 @@ const NewSubject = () => {
     handleAddNewItem,
   };
 
+  const validationContext = {
+    dispatch,
+    generateOnChanged: handleInputChanged,
+    state,
+  };
+
   return (
     <Container
       sx={{
@@ -188,11 +243,10 @@ const NewSubject = () => {
         minWidth: "90%",
       }}
     >
-      <Typography variant="h3">
-        Podaci o predmetu {state.subject.subjectName}
-      </Typography>
+      <Typography variant="h3">Dodavanje novog predmeta</Typography>
       <Typography variant="h5">
-        {state.subject.grade != 0 && `Za ${gradeToString.get(state.subject.grade)} razred`}
+        {state.subject.grade != 0 &&
+          `Za ${gradeToString.get(state.subject.grade)} razred`}
       </Typography>
       <form>
         <FormControl
@@ -202,78 +256,64 @@ const NewSubject = () => {
             justifyContent: "space-between",
           }}
         >
-          <TextField
-            label="Naziv"
-            name="subjectName"
+          <ValidatedTextField
+            id={"subjectName"}
+            label={"Naziv"}
+            type={"text"}
+            required
             value={state.subject.subjectName}
-            sx={{ marginBottom: 2 }}
-            onChange={handleInputChanged}
+            {...validationContext}
           />
-          <TextField
-            label="Nedeljni fond časova"
-            name="weeklyFund"
-            type="number"
+         
+          <ValidatedTextField
+            label={"Nedeljni fond časova"}
+            type={"number"}
+            id={"weeklyFund"}
             value={state.subject.weeklyFund}
-            inputProps={{ min: 0 }}
-            sx={{ marginBottom: 2 }}
-            onChange={handleInputChanged}
+            inputProps={{ min: 0, max: 5 }}
+            {...validationContext}
+            required
           />
-          <TextField
+         
+          <Select
+            required
             value={state.subject.grade}
-            label="Razred"
-            name="grade"
-            select
-            sx={{ marginBottom: 2 }}
             onChange={handleInputChanged}
+            sx={{ flexGrow: 2 }}
+            placeholder="Razred"
+            name={"grade"}
+            id="grade"
+            onBlur={(e) => {
+              dispatch({
+                type: "validate",
+                key: "grade",
+              });
+            }}
           >
+            <MenuItem value={0} key={0}>
+              Odaberite razred*
+            </MenuItem>
+            <Divider />
+
             {grades.map((g) => (
               <MenuItem key={g.id} value={g.grade}>
                 {gradeToString.get(g.grade)}
               </MenuItem>
             ))}
-          </TextField>
+          </Select>
+          
           <Box sx={{ marginY: 2 }}>
             <TableTemplate props={teachersTableProps} />
             <AddItem props={teachersAddItemProps} />
 
             <TableTemplate props={studentsTableProps} />
-            <AddItem props={studentsAddItemProps} />
+            <AddItem props={studentsAddItemProps} disabled={state.subject.grade === 0}/>
           </Box>
-          <FormGroup sx={{ display: "flex", flexDirection: "row-reverse" }}>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                console.log(JSON.stringify(state.subject, null, 4));
-                let s = structuredClone(state.subject);
-                s.students = JSON.stringify(state.subject.students);
-                s.teachers = JSON.stringify(state.subject.teachers);
-                fetcher.submit(s, {
-                  method: "post",
-                  action: `/subjects/new`,
-                });
-              }}
-            >
-              Sačuvaj
-            </Button>
-            <Button
-              variant="contained"
-              sx={{ marginRight: 1 }}
-              onClick={() =>
-                dispatch({
-                  type: "reset_form",
-                  subject: {
-                    subjectName: "",
-                    weeklyFund: "",
-                    grade: "",
-                    teachers: [],
-                    students: [],
-                  },
-                })
-              }
-            >
-              Otkaži
-            </Button>
-          </FormGroup>
+          <AddNewButtons
+            onResetClick={onResetClick}
+            onSaveClick={onSaveClick}
+            isFormValid={state.isFormValid}
+          />
         </FormControl>
       </form>
     </Container>

@@ -12,7 +12,7 @@ import { Autocomplete, Box, IconButton, TextField, Tooltip } from "@mui/material
  * labelOptions: ["firstName", "lastName"],
  * handleSetNewOption,
  * handleAddNewItem }*/
-const AddItem = ({props}) => {
+const AddItem = ({props, disabled = false}) => {
   return (
     <Box
       sx={{
@@ -22,6 +22,7 @@ const AddItem = ({props}) => {
       }}
     >
       <Autocomplete
+        disabled={disabled}
         sx={{ width: "90%" }}
         options={props.options.filter((t) =>
           props.forFilterOptions.every((st) => st.id !== t.id)

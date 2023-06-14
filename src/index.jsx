@@ -202,8 +202,8 @@ const router = createBrowserRouter([
           );
           checkResponse(response3);
           const teachers = await response3.json();
-
-          // const response4 = await fetch(`http://localhost:8080/api/v1/students?grade=${subject.grade}`, {
+            
+          // const response4 = await fetch(`http://localhost:8080/api/v1/students`, {
           //   method: 'GET',
           //   headers: {
           //     Authorization: getToken()
@@ -212,7 +212,7 @@ const router = createBrowserRouter([
           // checkResponse(response4);
           // const students = await response4.json();
           // const students = [];
-          return [grades, teachers]; //, students];
+          return [grades, teachers];
         },
         action: async ({ params, request }) => {
           const data = Object.fromEntries(await request.formData());

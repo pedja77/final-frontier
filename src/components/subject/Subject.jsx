@@ -21,6 +21,13 @@ import AddItem from "../lib/AddItem";
 import { useState } from "react";
 import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
+import ValidatedTextField from "../lib/ValidatedTextField";
+import { isFormValid, validateSubjectName, validateWeeklyFund } from "../../utils/validation";
+
+const ValidationIndex = {
+  subjectName: validateSubjectName,
+  weeklyFund: validateWeeklyFund
+}
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -48,10 +55,24 @@ const subjectReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.subject = action.subject;
+      for (const k in ValidationIndex) {
+        draft.errors[k] = ValidationIndex[k](draft.subject[k]);
+      }
+      draft.isFormValid = true;
+      break;
+    }
+    case "validate": {
+      draft.errors[action.key] = ValidationIndex[action.key](
+        draft.subject[action.key]
+      );
+      draft.isFormValid = isFormValid(draft.errors, [
+        "subjectName",
+        "weeklyFund"
+      ]);
       break;
     }
     default: {
-      throwError("Invalid action: ", action.type);
+      throw ("Invalid action: ", action.type);
     }
   }
 };
@@ -67,6 +88,8 @@ const Subject = () => {
     subject: structuredClone(sub),
     newTeacher: null,
     newStudent: null,
+    isFormValid: true,
+    errors: {}
   });
 
   const handleRemoveItem = (e, item, collection) => {
@@ -171,6 +194,12 @@ const Subject = () => {
     handleAddNewItem,
   };
 
+  const validationContext = {
+    dispatch,
+    generateOnChanged: handleInputChanged,
+    state,
+  };
+
   return (
     <Container
       sx={{
@@ -198,22 +227,24 @@ const Subject = () => {
           <FormLabel>id: {state.subject.id}</FormLabel>
           {getUserRole() === "ROLE_ADMIN" ? (
             <>
-              <TextField
-                label="Naziv"
-                name="subjectName"
+            <ValidatedTextField
+                label={"Naziv"}
+                type={"text"}
+                id={"subjectName"}
                 value={state.subject.subjectName}
-                sx={{ marginBottom: 2 }}
-                onChange={handleInputChanged}
+                {...validationContext}
               />
-              <TextField
-                label="Nedeljni fond časova"
-                name="weeklyFund"
-                type="number"
+              
+              <ValidatedTextField
+                label={"Nedeljni fond časova"}
+                type={"number"}
+                id={"weeklyFund"}
                 value={state.subject.weeklyFund}
-                inputProps={{ min: 0 }}
-                sx={{ marginBottom: 2 }}
-                onChange={handleInputChanged}
+                inputProps={{ min: 0, max: 5 }}
+                {...validationContext}
+                required
               />
+              
               <TextField
                 value={state.subject.grade}
                 label="Razred"
@@ -258,6 +289,7 @@ const Subject = () => {
             onSaveClick={onSaveClick}
             onResetClick={onResetClick}
             onDeleteClick={onDeleteClick}
+            isFormValid={state.isFormValid}
           />
         </FormControl>
       </form>

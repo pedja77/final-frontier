@@ -10,14 +10,14 @@ const ValidatedTextField = ({
   generateOnChanged,
   required = false,
   inputProps = {}
-}) => {
+}) => { console.log('errors[id] ', state.errors[id] === undefined)
   return (
     <TextField
       label={label}
       type={type}
       required={required}
-      helperText={!state.errors[id].valid ? state.errors[id].cause : " "}
-      error={!state.errors[id].valid}
+      helperText={((state.errors[id] !== undefined) && !state.errors[id].valid) ? state.errors[id].cause : " "}
+      error={state.errors[id] !== undefined && !state.errors[id].valid}
       id={id}
       name={id}
       value={value}
@@ -25,7 +25,6 @@ const ValidatedTextField = ({
       onChange={generateOnChanged}
       sc={{ paddingBottom: "2rem" }}
       onBlur={(e) => {
-        //StateIndex[id][1](ValidatorIndex[id](currentBook[id]));
         dispatch({
           type: "validate",
           key: id,
