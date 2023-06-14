@@ -165,6 +165,7 @@ const Teacher = () => {
     tdConfig: ["id", "subjectName", "grade"],
     removeFn: handleRemoveItem,
     collectionName: "subjects",
+    editUrl: '/subjects'
   };
 
   const subjectsAddItemProps = {

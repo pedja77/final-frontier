@@ -12,12 +12,11 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { getUserRole } from "../../utils/token";
+import { useNavigate } from "react-router-dom";
 
 /**props are {tableLabel: String, tableHeaders: [String], tableData:[{}], tdConfig:[String]}, functions */
 const TableTemplate = ({ props }) => {
-  /*
-        tableLabel, tableHeaders[], tableData[], tdConfig[]
-    */
+  const nav = useNavigate();
 
   return (
     <>
@@ -34,7 +33,9 @@ const TableTemplate = ({ props }) => {
               {props.tableHeaders.map((th, i) => (
                 <TableCell key={window.crypto.randomUUID()}>{th}</TableCell>
               ))}
-              {getUserRole() === "ROLE_ADMIN" && <TableCell align="right">Akcija</TableCell>}
+              {getUserRole() === "ROLE_ADMIN" && (
+                <TableCell align="right">Akcija</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -55,9 +56,14 @@ const TableTemplate = ({ props }) => {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Izmeni">
-                      <IconButton>
-                        <Edit />
-                      </IconButton>
+                      <span>
+                        <IconButton
+                          disabled={props.editUrl === undefined}
+                          onClick={() => nav(`${props.editUrl}/${t.id}`)}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                   </TableCell>
                 )}

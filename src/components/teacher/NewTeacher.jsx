@@ -104,15 +104,6 @@ const teacherReducer = (draft, action) => {
   }
 };
 
-// const errorsInit = {
-//   firstName: { valid: true, cause: "Ime" },
-//   lastName: { valid: true, cause: "Prezime" },
-//   weeklyClasses: { valid: true, cause: "Nedeljni fond" },
-//   username: { valid: true, cause: "Korisničko ime" },
-//   password: { valid: true, cause: "Lozinka" },
-//   confirmedPassword: { valid: true, cause: "Potvrdjena lozinka" },
-// };
-
 const NewTeacher = () => {
   const [subjects, users] = useLoaderData();
 
@@ -191,6 +182,7 @@ const NewTeacher = () => {
     tdConfig: ["id", "subjectName", "grade"],
     removeFn: handleRemoveItem,
     collectionName: "subjects",
+    editUrl: '/subjects'
   };
 
   const subjectsAddItemProps = {

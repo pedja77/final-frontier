@@ -159,6 +159,7 @@ const Subject = () => {
     tdConfig: ["id", "firstName", "lastName"],
     removeFn: handleRemoveItem,
     collectionName: "teachers",
+    editUrl: "/teachers"
   };
 
   const teachersAddItemProps = {
