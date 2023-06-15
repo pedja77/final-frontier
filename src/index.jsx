@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Subjects from "./components/subject/Subjects.jsx";
-import { checkLogin, getToken } from "./utils/token.js";
+import { checkRole, getToken } from "./utils/token.js";
 import Subject from "./components/subject/Subject.jsx";
 import Error from "./components/Error.jsx";
 import { checkResponse } from "./utils/responseChecker.js";
@@ -30,112 +30,46 @@ const router = createBrowserRouter([
         element: <Subjects />,
         path: "/subjects",
         loader: async () => {
-          console.log("loader");
-          const user = checkLogin([
+          checkRole([
             "ROLE_ADMIN",
             "ROLE_STUDENT",
             "ROLE_TEACHER",
           ]);
-          const token = getToken();
-          const response = await fetch(
-            `http://localhost:8080/api/v1/subjects`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: token,
-              },
-            }
-          );
+          
+          const response = await getResource(`http://localhost:8080/api/v1/subjects`);
           checkResponse(response);
           const subjects = await response.json();
 
-          const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
-            method: "GET",
-            headers: {
-              Authorization: token,
-            },
-          });
-          console.log("grades response " + response2.ok);
+          const response2 = await getResource(`http://localhost:8080/api/v1/grades`);
           checkResponse(response2);
           const grades = await response2.json();
 
           return [subjects, grades];
         },
-        children: [
-          {
-            path: "/subjects/search",
-            loader: ({ request }) => {
-              checkLogin(["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_TEACHER"]);
-              const search = new URL(request.url).searchParams;
-              const res = fetch(
-                `http://localhost:8080/api/v1/subjects/search?${search}`,
-                {
-                  method: "GET",
-                  headers: {
-                    Authorization: getToken(),
-                  },
-                }
-              );
-              checkResponse(res);
-              // const data = await res.json();
-              // console.log('data ' + JSON.stringify(data));
-              return res;
-            },
-          },
-        ],
       },
       {
         element: <Subject />,
         path: "subjects/:id",
         loader: async ({ params }) => {
-          console.log("params " + JSON.stringify(params));
-          const user = checkLogin([
+          checkRole([
             "ROLE_ADMIN",
             "ROLE_STUDENT",
             "ROLE_TEACHER",
           ]);
-          const response = await fetch(
-            `http://localhost:8080/api/v1/subjects/${params.id}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: getToken(),
-              },
-            }
-          );
+          
+          const response = await getResource(`http://localhost:8080/api/v1/subjects/${params.id}`);
           checkResponse(response);
           const subject = await response.json();
 
-          const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
-            method: "GET",
-            headers: {
-              Authorization: getToken(),
-            },
-          });
+          const response2 = await getResource(`http://localhost:8080/api/v1/grades`);
           checkResponse(response2);
           const grades = await response2.json();
 
-          const response3 = await fetch(
-            `http://localhost:8080/api/v1/teachers`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: getToken(),
-              },
-            }
-          );
+          const response3 = await getResource(`http://localhost:8080/api/v1/teachers`);
           checkResponse(response3);
           const teachers = await response3.json();
 
-          const response4 = await fetch(
-            `http://localhost:8080/api/v1/students/grade/${subject.grade}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: getToken(),
-              },
-            }
-          );
+          const response4 = await getResource(`http://localhost:8080/api/v1/students/grade/${subject.grade}`);
           checkResponse(response4);
           const students = await response4.json();
 
@@ -147,31 +81,33 @@ const router = createBrowserRouter([
             const data = Object.fromEntries(await request.formData());
             data.teachers = JSON.parse(data.teachers);
             data.students = JSON.parse(data.students);
-            const res = await fetch(
-              `http://localhost:8080/api/v1/subjects/${params.id}`,
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: getToken(),
-                },
-                body: JSON.stringify(data),
-              }
-            );
+            // const res = await fetch(
+            //   `http://localhost:8080/api/v1/subjects/${params.id}`,
+            //   {
+            //     method: "PUT",
+            //     headers: {
+            //       "Content-Type": "application/json",
+            //       Authorization: getToken(),
+            //     },
+            //     body: JSON.stringify(data),
+            //   }
+            // );
+            const res = await putResource(`http://localhost:8080/api/v1/subjects/${params.id}`, data);
             checkResponse(res);
             return res;
           } else if (request.method === "DELETE") {
             console.log("delete subject action params.id " + params.id);
-            const res = await fetch(
-              `http://localhost:8080/api/v1/subjects/${params.id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: getToken(),
-                },
-              }
-            );
+            // const res = await fetch(
+            //   `http://localhost:8080/api/v1/subjects/${params.id}`,
+            //   {
+            //     method: "DELETE",
+            //     headers: {
+            //       "Content-Type": "application/json",
+            //       Authorization: getToken(),
+            //     },
+            //   }
+            // );
+            const res = await deleteResource(`http://localhost:8080/api/v1/subjects/${params.id}`)
             checkResponse(res);
             return res;
           }
@@ -181,52 +117,47 @@ const router = createBrowserRouter([
         path: "/subjects/new",
         element: <NewSubject />,
         loader: async ({ params }) => {
-          const user = checkLogin(["ROLE_ADMIN"]);
-          const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
-            method: "GET",
-            headers: {
-              Authorization: getToken(),
-            },
-          });
+          checkRole(["ROLE_ADMIN"]);
+          // const response2 = await fetch(`http://localhost:8080/api/v1/grades`, {
+          //   method: "GET",
+          //   headers: {
+          //     Authorization: getToken(),
+          //   },
+          // });
+          const response2 = await getResource(`http://localhost:8080/api/v1/grades`);
           checkResponse(response2);
           const grades = await response2.json();
 
-          const response3 = await fetch(
-            `http://localhost:8080/api/v1/teachers`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: getToken(),
-              },
-            }
-          );
+          // const response3 = await fetch(
+          //   `http://localhost:8080/api/v1/teachers`,
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       Authorization: getToken(),
+          //     },
+          //   }
+          // );
+          const response3 = await getResource(`http://localhost:8080/api/v1/teachers`);
           checkResponse(response3);
           const teachers = await response3.json();
             
-          // const response4 = await fetch(`http://localhost:8080/api/v1/students`, {
-          //   method: 'GET',
-          //   headers: {
-          //     Authorization: getToken()
-          //   }
-          // });
-          // checkResponse(response4);
-          // const students = await response4.json();
-          // const students = [];
           return [grades, teachers];
         },
         action: async ({ params, request }) => {
+          checkRole(["ROLE_ADMIN"]);
           const data = Object.fromEntries(await request.formData());
           data.teachers = JSON.parse(data.teachers);
           data.students = JSON.parse(data.students);
 
-          const res = await fetch(`http://localhost:8080/api/v1/subjects`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: getToken(),
-            },
-            body: JSON.stringify(data),
-          });
+          // const res = await fetch(`http://localhost:8080/api/v1/subjects`, {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //     Authorization: getToken(),
+          //   },
+          //   body: JSON.stringify(data),
+          // });
+          const res = await postResource(`http://localhost:8080/api/v1/subjects`, data);
           checkResponse(res);
           return res;
         },
@@ -235,20 +166,21 @@ const router = createBrowserRouter([
         path: "/teachers",
         element: <Teachers />,
         loader: async () => {
-          const user = checkLogin([
+          checkRole([
             "ROLE_ADMIN",
             "ROLE_STUDENT",
             "ROLE_TEACHER",
           ]);
-          const response = await fetch(
-            "http://localhost:8080/api/v1/teachers",
-            {
-              method: "GET",
-              headers: {
-                Authorization: getToken(),
-              },
-            }
-          );
+          // const response = await fetch(
+          //   "http://localhost:8080/api/v1/teachers",
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       Authorization: getToken(),
+          //     },
+          //   }
+          // );
+          const response = await getResource("http://localhost:8080/api/v1/teachers");
           checkResponse(response);
           const teachers = await response.json();
 
@@ -259,7 +191,7 @@ const router = createBrowserRouter([
         path: "/teachers/:id",
         element: <Teacher />,
         loader: async ({ params }) => {
-          const user = checkLogin([
+          checkRole([
             "ROLE_ADMIN",
             "ROLE_STUDENT",
             "ROLE_TEACHER",
@@ -269,14 +201,12 @@ const router = createBrowserRouter([
           );
           checkResponse(response);
           const teacher = await response.json();
-          // console.log(`teacher ${params.id} ${JSON.stringify(teacher)}`);
-
+      
           const response2 = await getResource(
             `${baseUrl}/subjects/teacher/${params.id}`
           );
           checkResponse(response2);
           const subsByTeacher = await response2.json();
-          // console.log(`subjects by teacher ${params.id} ${JSON.stringify(subsByTeacher, null, 4)}`);
 
           // const response3 = await getResource(baseUrl + `/students/teacher/${params.id}`);
           // checkResponse(response3);
@@ -294,6 +224,7 @@ const router = createBrowserRouter([
           return [teacher, subsByTeacher, subjects];
         },
         action: async ({ params, request }) => {
+          checkRole(["ROLE_ADMIN"]);
           if (request.method === "PUT") {
             const data = Object.fromEntries(await request.formData());
             data.subjects = JSON.parse(data.subjects);
@@ -306,7 +237,7 @@ const router = createBrowserRouter([
             return res;
           } else if (request.method === "DELETE") {
             console.log("delete teacher " + params.id);
-            const res = deleteResource(baseUrl + `/users/${params.id}`);
+            const res = await deleteResource(baseUrl + `/users/${params.id}`);
             console.log("delete response " + res);
             // checkResponse(res);
             return res;
@@ -317,7 +248,7 @@ const router = createBrowserRouter([
         path: "/teachers/new",
         element: <NewTeacher />,
         loader: async () => {
-          const user = checkLogin(["ROLE_ADMIN"]);
+          checkRole(["ROLE_ADMIN"]);
           const response = await getResource(baseUrl + "/subjects");
           checkResponse(response);
           const subjects = await response.json();
@@ -329,6 +260,7 @@ const router = createBrowserRouter([
           return [subjects, users];
         },
         action: async ({ params, request }) => {
+          checkRole(["ROLE_ADMIN"]);
           const data = Object.fromEntries(await request.formData());
           data.subjects = JSON.parse(data.subjects);
           const response = await postResource(baseUrl + "/users", data);

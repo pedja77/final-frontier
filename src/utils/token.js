@@ -24,7 +24,7 @@ export const getToken = () => {
   return `Bearer ${getUser().token}`;
 };
 
-export const checkLogin = (roles) => {
+export const checkRole = (roles) => {
   const user = getUser();
   if (user === null) {
     throw errors.unauthorized;

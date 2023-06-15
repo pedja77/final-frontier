@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useFetcher, useLoaderData } from "react-router-dom";
+import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
 import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
@@ -87,6 +87,7 @@ const NewSubject = () => {
   const [grades, teachers] = useLoaderData();
 
   const fetcher = useFetcher();
+  const nav = useNavigate();
 
   const [state, dispatch] = useImmerReducer(subjectReducer, {
     subject: {
@@ -129,6 +130,13 @@ const NewSubject = () => {
     getData();
     return () => (ignore = true);
   }, [state.subject.grade]);
+
+  useEffect(() => {
+    if(fetcher.data) {
+      console.log('new subject fetcher.data', JSON.stringify(fetcher.data, null, 4));
+      nav('/subjects');
+    }
+  },[fetcher.data]);
 
   const handleRemoveItem = (e, item, collection) => {
     dispatch({

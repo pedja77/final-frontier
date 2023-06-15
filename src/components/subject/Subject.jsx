@@ -139,6 +139,7 @@ const Subject = () => {
       method: "put",
       action: `/subjects/${state.subject.id}`,
     });
+    nav("/subjects");
   };
 
   const onDeleteClick = () => {

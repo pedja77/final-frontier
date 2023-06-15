@@ -127,6 +127,12 @@ const NewTeacher = () => {
     usernames: users.map((u) => u.username),
   });
 
+  useEffect(() => {
+    if(fetcher.data) {
+      nav('/teachers');
+    }
+  },[fetcher.data]);
+
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
       type: "remove_item",
@@ -166,7 +172,7 @@ const NewTeacher = () => {
       method: "post",
       action: `/teachers/new`,
     });
-    nav("/teachers");
+    // nav("/teachers");
   };
 
   const onResetClick = () =>
