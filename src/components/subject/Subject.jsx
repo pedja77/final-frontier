@@ -1,13 +1,7 @@
 import {
   Box,
-  Button,
-  Collapse,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
   FormControl,
-  FormGroup,
   FormLabel,
   MenuItem,
   TextField,
@@ -18,7 +12,6 @@ import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
-import { useState } from "react";
 import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
 import ValidatedTextField from "../lib/ValidatedTextField";
@@ -131,7 +124,6 @@ const Subject = () => {
     });
 
   const onSaveClick = async () => {
-    console.log(JSON.stringify(state.subject, null, 4));
     let s = structuredClone(state.subject);
     s.students = JSON.stringify(state.subject.students);
     s.teachers = JSON.stringify(state.subject.teachers);

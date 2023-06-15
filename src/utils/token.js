@@ -5,9 +5,6 @@ import { errors } from "./responseChecker";
 // se nalaze role koje korisnik ima, izmedju ostalog
 export const decodeJwtPayload = (token) => {
   const base64Payload = getTokenPayload(token);
-  console.log(
-    "decodeJwtPayload " + Buffer.from(base64Payload, "base64").toString("utf8")
-  );
   return Buffer.from(base64Payload, "base64").toString("utf8");
 };
 
@@ -16,7 +13,6 @@ const getTokenPayload = (token) => token.split(" ")[1].split(".")[1];
 
 const getUser = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log("getUser " + user);
   return user;
 };
 
@@ -30,7 +26,6 @@ export const checkRole = (roles) => {
     throw errors.unauthorized;
   } else if (roles) {
     if (!roles.includes(user.role)) {
-      console.log(user.role);
       throw errors.forbidden;
     }
   }

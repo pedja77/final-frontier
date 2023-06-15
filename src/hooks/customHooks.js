@@ -13,17 +13,12 @@ export const useLogin = () => {
           method: "POST",
         }
       );
-      console.log("Login response status " + response.status);
       if (response.ok) {
         const u = await response.json();
-        console.log("useLogin>login>user " + JSON.stringify(u));
-
         const newUser = produce(u, (draft) => {
-          console.log("produce " + JSON.stringify(draft));
           draft.token = u.token.split(" ")[1];
           draft["role"] = JSON.parse(decodeJwtPayload(u.token)).authorities[0];
         });
-        console.log("newUser " + JSON.stringify(newUser));
         setUser(newUser);
         localStorage.setItem("user", JSON.stringify(newUser));
         return newUser;

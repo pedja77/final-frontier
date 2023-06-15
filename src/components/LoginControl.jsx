@@ -28,17 +28,13 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
     setOpen(false);
     setError(false);
   };
-  console.log("paths def/safe before handle " + defaultPath + ";" + safePath)
   
   const handleLogin = async () => {
     // e.preventDefault();
     const u = await login(username, password);
-    console.log("paths def/safe in handle " + defaultPath + ";" + safePath)
     if (u === null) {
-        console.log('handleLogin u=null ' + u)
       setError(true);
     } else {
-      console.log('defaultPath ' + defaultPath)
       setError(false);
       setOpen(false);
       nav("/subjects"); // hardcoded za probu bea ovoga fn primi defaultPath ali ga nekako resetuje na "/"

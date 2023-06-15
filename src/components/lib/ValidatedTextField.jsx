@@ -10,7 +10,7 @@ const ValidatedTextField = ({
   generateOnChanged,
   required = false,
   inputProps = {}
-}) => { console.log('errors[id] ', state.errors[id] === undefined)
+}) => { 
   return (
     <TextField
       label={label}

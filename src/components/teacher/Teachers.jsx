@@ -1,23 +1,18 @@
 import {
-  Typography,
   Stack,
   Container,
   TextField,
-  Select,
-  MenuItem,
-  Divider,
   IconButton,
   Tooltip,
 } from "@mui/material";
 import { NavLink, useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
 import { getToken, getUserRole } from "../../utils/token.js";
-import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import { AddCard } from "@mui/icons-material";
 import TeacherCard from "./TeacherCard";
 
-const subjectsReducer = (draft, action) => {
+const teachersReducer = (draft, action) => {
   switch (action.type) {
     case "search_changed": {
       draft.nameQuery = action.text;
@@ -35,7 +30,7 @@ const subjectsReducer = (draft, action) => {
 
 const Teachers = () => {
   const t = useLoaderData();
-  const [state, dispatch] = useImmerReducer(subjectsReducer, {
+  const [state, dispatch] = useImmerReducer(teachersReducer, {
     teachers: structuredClone(t),
     nameQuery: "",
   });
@@ -70,12 +65,12 @@ const Teachers = () => {
     });
   };
 
-  const handleGradeChange = (e) => {
-    dispatch({
-      type: "grade_changed",
-      value: e.target.value,
-    });
-  };
+  // const handleGradeChange = (e) => {
+  //   dispatch({
+  //     type: "grade_changed",
+  //     value: e.target.value,
+  //   });
+  // };
 
   return (
     <>

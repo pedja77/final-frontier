@@ -4,7 +4,6 @@ import {
   Container,
   FormControl,
   FormLabel,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
@@ -148,7 +147,6 @@ const Teacher = () => {
   };
 
   const onSaveClick = async () => {
-    console.log(JSON.stringify(state.teacher, null, 4));
     let s = structuredClone(state.teacher);
     s.subjects = JSON.stringify(state.teacher.subjects);
     fetcher.submit(s, {
@@ -237,15 +235,6 @@ const Teacher = () => {
                 {...validationContext}
                 required
               />
-              {/* <TextField
-                label="Nedeljni fond časova"
-                name="weeklyClasses"
-                type="number"
-                value={state.teacher.weeklyClasses}
-                inputProps={{ min: 0, max: 40 }}
-                sx={{ marginBottom: 2 }}
-                onChange={handleInputChanged}
-              /> */}
             </>
           ) : (
             <>

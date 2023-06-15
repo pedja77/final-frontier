@@ -3,7 +3,6 @@ import { Navigate, useRouteError } from "react-router-dom";
 
 const Error = ({ entity }) => {
   const error = useRouteError();
-  console.log("error " + error);
   switch (error.cause) {
     case "unauthorized": {
       return <Navigate to="/" />;

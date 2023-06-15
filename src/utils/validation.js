@@ -60,7 +60,6 @@ export const validateWeeklyClasses = (fund) => {
 export const validateUsername = (username, existingUsernames) => {
   const isValidText = validateText(username, /[\wšđžčć]+/gi, 4, 12);
   const isUnique = !existingUsernames.includes(username);
-  console.log(username, isUnique, existingUsernames);
   const isValid = isValidText && isUnique;
   const message =
     (!isValidText

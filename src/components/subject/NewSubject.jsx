@@ -107,7 +107,6 @@ const NewSubject = () => {
   useEffect(() => {
     let ignore = false;
     const getData = async () => {
-      console.log("fromEffect", state.subject.grade);
       const response = await fetch(
         `http://localhost:8080/api/v1/students/grade/${state.subject.grade}`,
         {
@@ -120,7 +119,6 @@ const NewSubject = () => {
       // checkResponse(response);
       if (!ignore) {
         const data = await response.json();
-        console.log("students from effect ", data.length);
         dispatch({
           type: "students_by_grade_changed",
           students: data,
@@ -133,7 +131,6 @@ const NewSubject = () => {
 
   useEffect(() => {
     if(fetcher.data) {
-      console.log('new subject fetcher.data', JSON.stringify(fetcher.data, null, 4));
       nav('/subjects');
     }
   },[fetcher.data]);
@@ -183,7 +180,6 @@ const NewSubject = () => {
     });
 
   const onSaveClick = () => {
-    // console.log(JSON.stringify(state.subject, null, 4));
     let s = structuredClone(state.subject);
     s.students = JSON.stringify(state.subject.students);
     s.teachers = JSON.stringify(state.subject.teachers);
