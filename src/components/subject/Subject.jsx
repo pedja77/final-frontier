@@ -16,6 +16,7 @@ import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
 import ValidatedTextField from "../lib/ValidatedTextField";
 import { isFormValid, validateSubjectName, validateWeeklyFund } from "../../utils/validation";
+import { useEffect } from "react";
 
 const ValidationIndex = {
   subjectName: validateSubjectName,
@@ -85,6 +86,12 @@ const Subject = () => {
     errors: {}
   });
 
+  useEffect(() => {
+    if(fetcher.data) {
+      nav('/subjects');
+    }
+  },[fetcher.data]);
+
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
       type: "remove_item",
@@ -131,7 +138,7 @@ const Subject = () => {
       method: "put",
       action: `/subjects/${state.subject.id}`,
     });
-    nav("/subjects");
+    // nav("/subjects");
   };
 
   const onDeleteClick = () => {
