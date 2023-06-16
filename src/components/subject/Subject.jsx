@@ -32,6 +32,9 @@ const subjectReducer = (draft, action) => {
   switch (action.type) {
     case "input_changed": {
       draft.subject[action.name] = action.value;
+      if(action.name === 'grade') {
+        draft.subject.students = [];
+      }
       break;
     }
     case "remove_item": {
@@ -58,18 +61,9 @@ const subjectReducer = (draft, action) => {
         draft.errors[k] = ValidationIndex[k](draft.subject[k]);
       }
       draft.isFormValid = true;
-      action.isFirst.current = true;
       break;
     }
     case "grade_changed": {
-      // Ima problem u dev modu zbog duplog renderovanja, firstRender ref je false prilikom drugog rendera
-      // pa predmete prikaze tek nakon reseta forme
-      console.log("grade_changed", action.isFirst);
-      if (!action.isFirst.current) {
-        draft.subject.students = [];
-      }
-      action.isFirst.current = false;
-      console.log("grade_changed after", action.isFirst);
       draft.studentsByGrade = action.data;
       break;
     }
@@ -93,7 +87,7 @@ const Subject = () => {
   const [sub, grades, teachers, studentsByGrade] = useLoaderData();
 
   const fetcher = useFetcher();
-  const firstRender = useRef(true);
+  
 
   const nav = useNavigate();
 
@@ -101,16 +95,14 @@ const Subject = () => {
     subject: structuredClone(sub),
     newTeacher: null,
     newStudent: null,
-    studentsByGrade: [], //structuredClone(studentsByGrade),
+    studentsByGrade: structuredClone(studentsByGrade),
     isFormValid: true,
     errors: {},
   });
 
-  // Ima problem u dev modu zbog duplog renderovanja, firstRender ref je false prilikom drugog rendera
-  // pa predmete prikaze tek nakon reseta forme
-  usePropChange(state.subject.grade, dispatch, "grade_changed", firstRender);
-  // console.log('Subject ref', firstRender.current)
-
+  usePropChange(state.subject.grade, dispatch, "grade_changed");
+  
+  // Kad se uradi save postojeceg predmeta, sacekamo odgovor pa se onda redirektujemo na sve predmete
   useEffect(() => {
     if (fetcher.data) {
       nav("/subjects");
@@ -153,7 +145,6 @@ const Subject = () => {
     dispatch({
       type: "reset_form",
       subject: structuredClone(sub),
-      isFirst: firstRender,
     });
 
   const onSaveClick = async () => {
@@ -164,7 +155,6 @@ const Subject = () => {
       method: "put",
       action: `/subjects/${state.subject.id}`,
     });
-    // nav("/subjects");
   };
 
   const onDeleteClick = () => {

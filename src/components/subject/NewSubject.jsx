@@ -1,13 +1,10 @@
 import {
   Box,
-  Button,
   Container,
   Divider,
   FormControl,
-  FormGroup,
   MenuItem,
   Select,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useFetcher, useLoaderData, useNavigate } from "react-router-dom";
@@ -15,9 +12,7 @@ import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
-import { useEffect, useRef } from "react";
-import { getToken } from "../../utils/token";
-import { checkResponse } from "../../utils/responseChecker";
+import { useEffect } from "react";
 import {
   isFormValid,
   validateGrade,
@@ -60,6 +55,8 @@ const subjectReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.subject = action.subject;
+      draft.isFormValid = false;
+      draft.errors = {};
       break;
     }
     case "grade_changed": {
@@ -90,7 +87,6 @@ const NewSubject = () => {
 
   const fetcher = useFetcher();
   const nav = useNavigate();
-  // const firstRender = useRef(true);
 
   const [state, dispatch] = useImmerReducer(subjectReducer, {
     subject: {
@@ -147,7 +143,7 @@ const NewSubject = () => {
     });
   };
 
-  const onResetClick = () =>
+  const onResetClick = () => 
     dispatch({
       type: "reset_form",
       subject: {

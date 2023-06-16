@@ -136,15 +136,7 @@ const router = createBrowserRouter([
             "ROLE_STUDENT",
             "ROLE_TEACHER",
           ]);
-          // const response = await fetch(
-          //   "http://localhost:8080/api/v1/teachers",
-          //   {
-          //     method: "GET",
-          //     headers: {
-          //       Authorization: getToken(),
-          //     },
-          //   }
-          // );
+          
           const response = await getResource("http://localhost:8080/api/v1/teachers");
           checkResponse(response);
           const teachers = await response.json();
@@ -192,7 +184,7 @@ const router = createBrowserRouter([
             return res;
           } else if (request.method === "DELETE") {
             const res = await deleteResource(baseUrl + `/users/${params.id}`);
-            // checkResponse(res);
+            checkResponse(res);
             return res;
           }
         },
@@ -229,5 +221,5 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </React.StrictMode> 
 );

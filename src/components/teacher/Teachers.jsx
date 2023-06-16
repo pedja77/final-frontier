@@ -65,13 +65,6 @@ const Teachers = () => {
     });
   };
 
-  // const handleGradeChange = (e) => {
-  //   dispatch({
-  //     type: "grade_changed",
-  //     value: e.target.value,
-  //   });
-  // };
-
   return (
     <>
       <Stack direction="column">
@@ -87,7 +80,7 @@ const Teachers = () => {
             name="subjectSearchTextField"
           />
           {getUserRole() === "ROLE_ADMIN" && ( // prikazi dodavanje novog predmeta samo ako je korisnik admin
-            <Tooltip title="Dodaj novi predmet">
+            <Tooltip title="Dodaj novog nastavnika">
               <span>
                 <IconButton size="larger" component={NavLink} to="/teachers/new">
                   <AddCard fontSize="large" />

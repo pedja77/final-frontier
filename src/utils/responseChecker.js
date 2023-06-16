@@ -19,6 +19,11 @@ export const errors = {
     code: 404,
     message: "Traženi sadržaj ne postoji",
   },
+  server: {
+    cause: "server_error",
+    code: 500,
+    message: "Došlo je do greške na serveru"
+  },
   unknown: {
     cause: "unknown",
     code: '',
@@ -40,6 +45,9 @@ export const checkResponse = (res) => {
       }
       case 404: {
         throw errors.not_found;
+      }
+      case 500: {
+        throw errors.server;
       }
       default: {
         throw errors.unknown;

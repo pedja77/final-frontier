@@ -19,6 +19,7 @@ import {
   validateWeeklyClasses,
 } from "../../utils/validation";
 import ValidatedTextField from "../lib/ValidatedTextField";
+import { useEffect } from "react";
 
 const ValidationIndex = {
   firstName: validateFirstName,
@@ -94,6 +95,12 @@ const Teacher = () => {
     isFormValid: true,
   });
 
+  useEffect(() => {
+    if (fetcher.data) {
+      nav("/teachers");
+    }
+  }, [fetcher.data]);
+
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
       type: "remove_item",
@@ -153,7 +160,7 @@ const Teacher = () => {
       method: "put",
       action: `/teachers/${state.teacher.id}`,
     });
-    nav("/teachers");
+    // nav("/teachers");
   };
 
   const subjectsTableProps = {

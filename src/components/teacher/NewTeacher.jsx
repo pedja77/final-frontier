@@ -56,7 +56,8 @@ const teacherReducer = (draft, action) => {
     }
     case "reset_form": {
       draft.teacher = action.teacher;
-      draft.errors = errorsInit;
+      draft.errors = {};
+      draft.isFormValid = false;
       break;
     }
     case "validate": {
