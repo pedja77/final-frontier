@@ -15,14 +15,18 @@ import AddItem from "../lib/AddItem";
 import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
 import ValidatedTextField from "../lib/ValidatedTextField";
-import { isFormValid, validateSubjectName, validateWeeklyFund } from "../../utils/validation";
+import {
+  isFormValid,
+  validateSubjectName,
+  validateWeeklyFund,
+} from "../../utils/validation";
 import { useEffect, useRef } from "react";
 import { usePropChange } from "../../hooks/customHooks";
 
 const ValidationIndex = {
   subjectName: validateSubjectName,
-  weeklyFund: validateWeeklyFund
-}
+  weeklyFund: validateWeeklyFund,
+};
 
 const subjectReducer = (draft, action) => {
   switch (action.type) {
@@ -58,12 +62,14 @@ const subjectReducer = (draft, action) => {
       break;
     }
     case "grade_changed": {
-      console.log('grade_changed', action.isFirst)
-      if(!action.isFirst.current) {
+      // Ima problem u dev modu zbog duplog renderovanja, firstRender ref je false prilikom drugog rendera
+      // pa predmete prikaze tek nakon reseta forme
+      console.log("grade_changed", action.isFirst);
+      if (!action.isFirst.current) {
         draft.subject.students = [];
       }
       action.isFirst.current = false;
-      console.log('grade_changed after', action.isFirst)
+      console.log("grade_changed after", action.isFirst);
       draft.studentsByGrade = action.data;
       break;
     }
@@ -73,7 +79,7 @@ const subjectReducer = (draft, action) => {
       );
       draft.isFormValid = isFormValid(draft.errors, [
         "subjectName",
-        "weeklyFund"
+        "weeklyFund",
       ]);
       break;
     }
@@ -95,19 +101,21 @@ const Subject = () => {
     subject: structuredClone(sub),
     newTeacher: null,
     newStudent: null,
-    studentsByGrade: [],//structuredClone(studentsByGrade),
+    studentsByGrade: [], //structuredClone(studentsByGrade),
     isFormValid: true,
-    errors: {}
+    errors: {},
   });
 
+  // Ima problem u dev modu zbog duplog renderovanja, firstRender ref je false prilikom drugog rendera
+  // pa predmete prikaze tek nakon reseta forme
   usePropChange(state.subject.grade, dispatch, "grade_changed", firstRender);
   // console.log('Subject ref', firstRender.current)
 
   useEffect(() => {
-    if(fetcher.data) {
-      nav('/subjects');
+    if (fetcher.data) {
+      nav("/subjects");
     }
-  },[fetcher.data]);
+  }, [fetcher.data]);
 
   const handleRemoveItem = (e, item, collection) => {
     dispatch({
@@ -145,7 +153,7 @@ const Subject = () => {
     dispatch({
       type: "reset_form",
       subject: structuredClone(sub),
-      isFirst: firstRender
+      isFirst: firstRender,
     });
 
   const onSaveClick = async () => {
@@ -168,7 +176,7 @@ const Subject = () => {
       }
     );
     nav("/subjects");
-  }
+  };
 
   const teachersTableProps = {
     tableLabel: "Nastavnici",
@@ -177,7 +185,7 @@ const Subject = () => {
     tdConfig: ["id", "firstName", "lastName"],
     removeFn: handleRemoveItem,
     collectionName: "teachers",
-    editUrl: "/teachers"
+    editUrl: "/teachers",
   };
 
   const teachersAddItemProps = {
@@ -246,14 +254,14 @@ const Subject = () => {
           <FormLabel>id: {state.subject.id}</FormLabel>
           {getUserRole() === "ROLE_ADMIN" ? (
             <>
-            <ValidatedTextField
+              <ValidatedTextField
                 label={"Naziv"}
                 type={"text"}
                 id={"subjectName"}
                 value={state.subject.subjectName}
                 {...validationContext}
               />
-              
+
               <ValidatedTextField
                 label={"Nedeljni fond časova"}
                 type={"number"}
@@ -263,7 +271,7 @@ const Subject = () => {
                 {...validationContext}
                 required
               />
-              
+
               <TextField
                 value={state.subject.grade}
                 label="Razred"

@@ -37,6 +37,8 @@ export const useLogin = () => {
   ];
 };
 
+// Ima problem u dev modu zbog duplog renderovanja, firstRender ref je false prilikom drugog rendera
+// pa predmete prikaze tek nakon reseta forme
 export const usePropChange = (prop, dispatch, action, firstRender=null) => {
   useEffect(() => {
     let ignore = false;
