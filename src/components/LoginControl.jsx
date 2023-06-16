@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { UserContext } from "../App";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,6 +21,7 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // const inputRef = useRef(true);
 
   const [error, setError] = useState(false);
 
@@ -65,7 +66,7 @@ export const LoginControl = ({ safePath, defaultPath, isInToolbar }) => {
           </DialogContentText>
           <TextField
             autoFocus // ne radi zapravo nista, nema promene bez obzira da li je aktivan ili zakomentarisan
-            //inputRef={(i) => i && i.focus()}
+            // inputRef={(i) => i && i.focus()}
             focused
             id="username"
             label="Korisničko ime"

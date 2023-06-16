@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { decodeJwtPayload } from "../utils/token";
+import { decodeJwtPayload, getToken } from "../utils/token";
 import { produce } from "immer";
+import { useRef } from "react";
+import { checkResponse } from "../utils/responseChecker";
 
 export const useLogin = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
@@ -35,19 +37,34 @@ export const useLogin = () => {
   ];
 };
 
-export const useFetchData = (url, config) => {
-  const [data, setData] = useState(null);
+export const usePropChange = (prop, dispatch, action, firstRender=null) => {
   useEffect(() => {
     let ignore = false;
-    const fetchData = async () => {
-      const res = await fetch(url, config);
+    const getData = async () => {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/students/grade/${prop}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      checkResponse(response);
       if (!ignore) {
-        const jsonData = await res.json();
-        setData(jsonData);
+        const data = await response.json();
+        dispatch({
+          type: action,
+          data: data,
+          isFirst: firstRender
+        });
       }
     };
-    fetchData();
-    return () => ignore = true;
-  }, [url]);
-  return data;
+    
+    getData();
+      
+    return () => (ignore = true);
+  }, [prop]);
 };
+
+

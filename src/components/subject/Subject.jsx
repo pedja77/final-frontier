@@ -16,7 +16,8 @@ import { getUserRole } from "../../utils/token";
 import EditButtons from "../lib/EditButtons";
 import ValidatedTextField from "../lib/ValidatedTextField";
 import { isFormValid, validateSubjectName, validateWeeklyFund } from "../../utils/validation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePropChange } from "../../hooks/customHooks";
 
 const ValidationIndex = {
   subjectName: validateSubjectName,
@@ -53,6 +54,17 @@ const subjectReducer = (draft, action) => {
         draft.errors[k] = ValidationIndex[k](draft.subject[k]);
       }
       draft.isFormValid = true;
+      action.isFirst.current = true;
+      break;
+    }
+    case "grade_changed": {
+      console.log('grade_changed', action.isFirst)
+      if(!action.isFirst.current) {
+        draft.subject.students = [];
+      }
+      action.isFirst.current = false;
+      console.log('grade_changed after', action.isFirst)
+      draft.studentsByGrade = action.data;
       break;
     }
     case "validate": {
@@ -75,6 +87,7 @@ const Subject = () => {
   const [sub, grades, teachers, studentsByGrade] = useLoaderData();
 
   const fetcher = useFetcher();
+  const firstRender = useRef(true);
 
   const nav = useNavigate();
 
@@ -82,9 +95,13 @@ const Subject = () => {
     subject: structuredClone(sub),
     newTeacher: null,
     newStudent: null,
+    studentsByGrade: [],//structuredClone(studentsByGrade),
     isFormValid: true,
     errors: {}
   });
+
+  usePropChange(state.subject.grade, dispatch, "grade_changed", firstRender);
+  // console.log('Subject ref', firstRender.current)
 
   useEffect(() => {
     if(fetcher.data) {
@@ -128,6 +145,7 @@ const Subject = () => {
     dispatch({
       type: "reset_form",
       subject: structuredClone(sub),
+      isFirst: firstRender
     });
 
   const onSaveClick = async () => {
@@ -187,7 +205,7 @@ const Subject = () => {
     itemName: "učenika",
     newItemName: "newStudent",
     newItem: state.newStudent,
-    options: studentsByGrade,
+    options: state.studentsByGrade,
     collection: "students",
     forFilterOptions: state.subject.students,
     labelOptions: ["firstName", "lastName"],

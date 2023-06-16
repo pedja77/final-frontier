@@ -15,7 +15,7 @@ import { gradeToString } from "../../utils/textTools";
 import { useImmerReducer } from "use-immer";
 import TableTemplate from "../lib/TableTemplate";
 import AddItem from "../lib/AddItem";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getToken } from "../../utils/token";
 import { checkResponse } from "../../utils/responseChecker";
 import {
@@ -26,6 +26,7 @@ import {
 } from "../../utils/validation";
 import ValidatedTextField from "../lib/ValidatedTextField";
 import AddNewButtons from "../lib/AddNewButtons";
+import { usePropChange } from "../../hooks/customHooks";
 
 const ValidationIndex = {
   subjectName: validateSubjectName,
@@ -61,8 +62,9 @@ const subjectReducer = (draft, action) => {
       draft.subject = action.subject;
       break;
     }
-    case "students_by_grade_changed": {
-      draft.studentsByGrade = action.students;
+    case "grade_changed": {
+      console.log('students_by_grade_changed')
+      draft.studentsByGrade = action.data;
       draft.subject.students = [];
       break;
     }
@@ -88,6 +90,7 @@ const NewSubject = () => {
 
   const fetcher = useFetcher();
   const nav = useNavigate();
+  // const firstRender = useRef(true);
 
   const [state, dispatch] = useImmerReducer(subjectReducer, {
     subject: {
@@ -104,30 +107,7 @@ const NewSubject = () => {
     isFormValid: false,
   });
 
-  useEffect(() => {
-    let ignore = false;
-    const getData = async () => {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/students/grade/${state.subject.grade}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-      // checkResponse(response);
-      if (!ignore) {
-        const data = await response.json();
-        dispatch({
-          type: "students_by_grade_changed",
-          students: data,
-        });
-      }
-    };
-    getData();
-    return () => (ignore = true);
-  }, [state.subject.grade]);
+  usePropChange(state.subject.grade, dispatch, "grade_changed");
 
   useEffect(() => {
     if(fetcher.data) {
